@@ -2,10 +2,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { ClientData, UsageStats } from "../types";
 
-/**
- * PRICING 2025 (Per 1,000,000 Tokens)
- * Ref: https://ai.google.dev/gemini-api/docs/pricing
- */
 const PRICING = {
   'gemini-2.5-flash': { input: 0.30, output: 2.50 },
   'gemini-3-flash-preview': { input: 0.50, output: 3.00 },
@@ -21,43 +17,33 @@ const formatDate = (dateString: string) => {
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 const NATALIE_SYSTEM_PROMPT = `
-Kamu adalah Natalie Lau, seorang konsultan Cosmography (Vedic Astrology) dengan gaya bicara "Wise & Grounded Counselor".
-Pedoman bahasamu:
-1. Jelas & Bermakna: Berikan insight yang dalam tapi langsung ke inti masalah. Jangan bertele-tele.
-2. Hangat tapi Profesional: Puitis sewajarnya saja untuk memberi kenyamanan, jangan terlalu berbunga-bunga.
-3. Struktur Narasi & Tabel: Selain narasi yang mengalir, kamu WAJIB menyajikan data teknis dalam bentuk TABEL Markdown pada bagian-bagian yang diinstruksikan agar klien mendapatkan ringkasan data yang rapi.
-4. Edukatif: Jelaskan istilah teknis (Lagna, Houses, Dasha) dengan bahasa sehari-hari.
-5. Fokus pada Solusi: Bantu klien memahami pola batin mereka.
-6. Konsistensi: Hubungkan narasi antar bab dengan logis.
+Kamu adalah Natalie Lau, pakar Cosmography senior. Tugasmu adalah menyusun "Dokumen Strategis Nasib" tertulis untuk klien.
+
+PRINSIP PENULISAN:
+1. PREDIKSI: Jangan hanya analisis karakter. Berikan RAMALAN dan PREDIKSI konkret tentang tren masa depan (karier, keuangan, kesehatan) berdasarkan periode waktu saat ini.
+2. FORMAT BAB: Tulis judul bab persis seperti yang diberikan di [TUGAS]. JANGAN mengubah nomor bab atau menambah sub-bab nomor sendiri.
+3. TABEL: Gunakan format standard (| Planet | House |). Gunakan satu pipa (|). JANGAN gunakan double pipe.
+4. GAYA BAHASA: Mewah, tajam, dan direktif. Kamu adalah penasihat tingkat tinggi, bukan teman mengobrol.
+5. NO REPETITION: Natalie memiliki ingatan jangka panjang. Jangan mengulang penjelasan yang sudah ada di bab sebelumnya. Jika sudah dibahas di Bab 2, di Bab 10 cukup berikan referensi singkat.
+6. TARGET KERESAHAN: [KERESAHAN KLIEN] adalah kompas utama. Setiap bab harus memberikan sudut pandang solusi untuk masalah tersebut.
 `;
 
-const getSections = (dateContext: string, clientName: string) => [
-  { 
-    id: 'BAB1', 
-    title: 'Bab 1: Lagna & Ringkasan Placements', 
-    prompt: `Sapa klien dengan hangat. Cari Nama Klien di data, tulis [[NAME: Nama]]. 
-    TUGAS KHUSUS: Buat tabel Markdown "Ringkasan Penempatan Planet" yang berisi kolom: Planet, Zodiak, House, dan Nakshatra (untuk 9 Planet + Lagna). 
-    Lalu berikan narasi tentang Lagna sebagai filter utama hidup mereka.` 
-  },
-  { id: 'BAB2', title: 'Bab 2: Finansial & Nilai Diri', prompt: `Bahas House 2. Fokus pada cara mereka mencari keamanan finansial dan apa yang mereka hargai secara personal.` },
-  { id: 'BAB3', title: 'Bab 3: Inisiatif & Komunikasi', prompt: `Bahas House 3. Kekuatan kemauan, cara bicara, dan bagaimana mereka mengeksekusi ide.` },
-  { id: 'BAB4', title: 'Bab 4: Ketenangan Batin & Ibu', prompt: `Bahas House 4. Hubungan dengan keluarga dan apa yang membuat mereka merasa aman secara emosional.` },
-  { id: 'BAB5', title: 'Bab 5: Talenta & Intuisi', prompt: `Bahas House 5. Kreativitas, kecerdasan bawaan, dan hal-hal yang mereka sukai secara murni.` },
-  { id: 'BAB6', title: 'Bab 6: Disiplin & Hambatan', prompt: `Bahas House 6. Cara menghadapi konflik, rutinitas kesehatan, dan rintangan harian.` },
-  { id: 'BAB7', title: 'Bab 7: Dinamika Hubungan', prompt: `Bahas House 7. Interaksi dengan orang lain, pasangan, dan kontrak sosial.` },
-  { id: 'BAB8', title: 'Bab 8: Transformasi & Krisis', prompt: `Bahas House 8. Kejadian tak terduga, kedalaman batin, dan kebangkitan diri.` },
-  { id: 'BAB9', title: 'Bab 9: Filosofi & Keberuntungan', prompt: `Bahas House 9. Pandangan spiritual, figur guru/ayah, dan faktor keberuntungan.` },
-  { id: 'BAB10', title: 'Bab 10: Karier & Kontribusi Publik', prompt: `Bahas House 10. Peran di masyarakat, pencapaian profesional, dan tanggung jawab.` },
-  { id: 'BAB11', title: 'Bab 11: Pencapaian & Koneksi', prompt: `Bahas House 11. Keuntungan finansial, pertemanan, dan ambisi jangka panjang.` },
-  { id: 'BAB12', title: 'Bab 12: Refleksi & Pelepasan', prompt: `Bahas House 12. Hal-hal di balik layar, pengeluaran, dan kebutuhan untuk healing.` },
-  { id: 'BAB13', title: 'Bab 13: Poros Rahu & Ketu (Shadow Work)', prompt: `TUGAS KHUSUS: Buat tabel singkat "Poros Evolusi Jiwa" (Rahu vs Ketu). Berikan narasi tentang obsesi dan area pelepasan mereka.` },
-  { 
-    id: 'BAB14', 
-    title: 'Bab 14: Navigasi Waktu (Dasha)', 
-    prompt: `TUGAS KHUSUS: Buat tabel "Urutan Dasha Saat Ini" yang menunjukkan periode planet penguasa saat ini dan sub-periodenya. 
-    Lalu jelaskan energi yang mendominasi di bulan ${dateContext} secara praktis.` 
-  },
-  { id: 'BAB15', title: 'Bab 15: Natalie\'s Guidance & Remedy', prompt: `Berikan saran praktis (Remedy) untuk menyeimbangkan energi. Tutup surat dengan pesan penguat yang jelas.` }
+const getSections = (dateContext: string) => [
+  { id: 'BAB1', title: 'Bab 1: Konfigurasi Kosmik Utama', prompt: `Awali laporan dengan formal. Tulis [[NAME: Nama]]. Buat Tabel: Planet | Zodiak | House | Nakshatra. Bahas Lagna dan kaitan intinya dengan [KERESAHAN KLIEN].` },
+  { id: 'BAB2', title: 'Bab 2: Arus Finansial & Fondasi Keamanan', prompt: `Analisis House 2. Berikan prediksi tentang stabilitas nilai aset klien di masa depan.` },
+  { id: 'BAB3', title: 'Bab 3: Kekuatan Aksi & Komunikasi', prompt: `Analisis House 3. Bagaimana cara klien mengambil inisiatif untuk menyelesaikan masalahnya?` },
+  { id: 'BAB4', title: 'Bab 4: Stabilitas Emosional & Akar', prompt: `Analisis House 4. Bahas kedamaian batin dan dukungan keluarga.` },
+  { id: 'BAB5', title: 'Bab 5: Kreativitas & Potensi Keberuntungan', prompt: `Analisis House 5. Bahas bakat spekulatif atau kecerdasan yang bisa dimaksimalkan.` },
+  { id: 'BAB6', title: 'Bab 6: Manajemen Konflik & Kesehatan', prompt: `Analisis House 6. Bahas rintangan sehari-hari dan cara menaklukkannya.` },
+  { id: 'BAB7', title: 'Bab 7: Dinamika Kemitraan', prompt: `Analisis House 7. Bagaimana relasi (bisnis/asmara) akan memengaruhi nasib klien ke depan.` },
+  { id: 'BAB8', title: 'Bab 8: Krisis & Transformasi Mendalam', prompt: `Analisis House 8. Bahas perubahan besar atau rahasia yang perlu dibongkar agar klien maju.` },
+  { id: 'BAB9', title: 'Bab 9: Filosofi Hidup & Bimbingan Higher Self', prompt: `Analisis House 9. Apa bimbingan spiritual atau keberuntungan jauh yang tersedia?` },
+  { id: 'BAB10', title: 'Bab 10: Prestasi Publik & Navigasi Karier', prompt: `Analisis House 10. Bedah karier dengan sangat detail. Berikan PREDIKSI tentang posisi klien di mata publik.` },
+  { id: 'BAB11', title: 'Bab 11: Pencapaian & Lingkaran Sosial', prompt: `Analisis House 11. Potensi keuntungan besar dan jaringan pendukung.` },
+  { id: 'BAB12', title: 'Bab 12: Pengorbanan & Pelepasan Ego', prompt: `Analisis House 12. Apa yang harus diikhlaskan agar siklus baru bisa dimulai?` },
+  { id: 'BAB13', title: 'Bab 13: Poros Evolusi (Rahu & Ketu)', prompt: `Buat Tabel: Titik Simpul | Zodiak | Area Hidup | Esensi Evolusi. Bahas di mana klien sering terjebak ilusi (Rahu) dan di mana dia harus bersandar (Ketu).` },
+  { id: 'BAB14', title: 'Bab 14: Ramalan Periode Dasha & Transmutasi Waktu', prompt: `Buat Tabel: Periode | Planet Penguasa | Tema Utama. Berikan RAMALAN STRATEGIS untuk 6-12 bulan ke depan mulai dari ${dateContext}. Apa yang akan terjadi?` },
+  { id: 'BAB15', title: 'Bab 15: Sintesis Akhir & Rekomendasi Natalie', prompt: `Ringkas poin paling krusial. Berikan 3 Prediksi Utama dan 3 Tindakan Konkret (Remedy) untuk menjawab [KERESAHAN KLIEN]. Tutup dokumen ini dengan wibawa.` }
 ];
 
 export const generateReport = async (
@@ -75,9 +61,8 @@ export const generateReport = async (
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
   let rollingContext = ""; 
-  let currentClientName = data.clientName || "Sahabat";
 
-  const sections = getSections(formatDate(data.analysisDate), currentClientName);
+  const sections = getSections(formatDate(data.analysisDate));
 
   for (const section of sections) {
     let attempts = 0;
@@ -86,13 +71,17 @@ export const generateReport = async (
 
     while (attempts < maxAttempts && !sectionSuccess) {
       try {
-        onStatusUpdate(`Natalie menganalisis ${section.title}... ${attempts > 0 ? `(Mencoba lagi ${attempts})` : ''}`);
+        onStatusUpdate(`Menyusun ${section.title}...`);
         
         const prompt = `
-        [KONTEKS SEBELUMNYA]: ${rollingContext || "Awal sesi."}
+        NOMOR BAB SAAT INI: ${section.id}
+        JUDUL BAB WAJIB: # ${section.title}
+        [KONTEKS ANALISIS TERAKHIR]: ${rollingContext || "Ini adalah halaman pertama laporan."}
         [KERESAHAN KLIEN]: "${data.concerns || "Umum"}"
         [TUGAS]: ${section.prompt}
-        [DATA VEDIC]: ${data.rawText || "Lihat file"}
+        [DATA VEDIC]: ${data.rawText || "Cek file terlampir"}
+
+        INSTRUKSI KHUSUS: Awali jawabanmu langsung dengan judul bab "# ${section.title}". JANGAN mengulang judul bab lain yang sudah lewat. JANGAN menambah sapaan jika bukan Bab 1.
         `;
 
         const processedFiles: any[] = [];
@@ -101,12 +90,12 @@ export const generateReport = async (
           processedFiles.push({ inlineData: { mimeType: file.type, data: base64Data } });
         }
 
-        const chainPrompt = `\n\n[[CONTEXT_FOR_NEXT: (Rangkuman teknis singkat bab ini untuk memandu Natalie di bab berikutnya)]]`;
+        const chainPrompt = `\n\n[[CONTEXT_FOR_NEXT: (Rangkuman poin teknis bab ini)]]`;
 
         const responseStream = await ai.models.generateContentStream({
           model: model,
           contents: { role: 'user', parts: [{ text: prompt + chainPrompt }, ...processedFiles] },
-          config: { systemInstruction: NATALIE_SYSTEM_PROMPT, temperature: 0.7 }
+          config: { systemInstruction: NATALIE_SYSTEM_PROMPT, temperature: 0.75 }
         });
 
         let sectionContent = "";
@@ -148,9 +137,9 @@ export const generateReport = async (
       } catch (err) {
         attempts++;
         if (attempts >= maxAttempts) {
-          accumulatedReport += `\n\n*(Natalie melewati analisis Bab ${section.id} karena gangguan energi, dilanjutkan ke bab berikutnya...)*`;
+          accumulatedReport += `\n\n*(Bab ${section.id} tertunda...)*`;
         } else {
-          await wait(2000 * attempts);
+          await wait(1000 * attempts);
         }
       }
     }
