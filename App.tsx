@@ -236,6 +236,7 @@ const App: React.FC = () => {
                    onReset={() => {}} 
                    usage={currentViewItem.usage}
                    analysisDate={currentViewItem.client.analysisDate}
+                   clientName={currentViewItem.client.clientName}
                 />
              </div>
           )}

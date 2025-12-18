@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { ClientData, UsageStats } from "../types";
 
@@ -15,7 +16,7 @@ const formatDate = (dateString: string) => {
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// REVISI: Instruksi untuk Panjang & Detail tapi tetap Bahasa Manusia
+// REVISI: Instruksi Anti-CSV & Pro-List Aesthetic
 const NATALIE_SYSTEM_PROMPT = `
 Kamu adalah Natalie Lau, konsultan Cosmography Premium.
 Tujuanmu adalah membuat "Buku Panduan Hidup" (Life Playbook) yang TEBAL, MENDALAM, dan SANGAT DETAIL (Min. 40 Halaman Total).
@@ -25,26 +26,32 @@ GAYA BAHASA:
 2.  **Storytelling**: Jangan hanya kasih data. Ceritakan "Mengapa" dan "Bagaimana". Ajak pembaca menyelami diri mereka.
 3.  **Struktur Tulisan**: Gunakan Sub-Judul (Heading 3) di dalam setiap Bab untuk memecah teks panjang agar enak dibaca.
 
-FORMATTING (CRITICAL):
-1.  **TABEL MARKDOWN**: WAJIB gunakan format tabel garis tegak.
-    BENAR:
-    | Planet | Zodiak |
-    | :--- | :--- |
-    | Sun | Leo |
-    
-    SALAH (JANGAN PERNAH): "Planet","Zodiak" (CSV)
+FORMATTING (CRITICAL - JANGAN DILANGGAR):
+1.  **PENYAJIAN DATA**: DILARANG KERAS MENGGUNAKAN FORMAT TABEL (|...|) ATAU CSV ("Key","Value").
+    Gunakan format **List / Bullet Points** yang rapi dan estetik.
+
+    CONTOH BENAR (Gunakan ini):
+    *   **Sun (Matahari)**: Leo (House 5)
+        *Esensi*: Sumber ego dan kreativitas murni.
+    *   **Moon (Bulan)**: Cancer (House 4)
+        *Esensi*: Kebutuhan akan rasa aman emosional.
+
+    SALAH (JANGAN PERNAH):
+    "Planet","Zodiak","House" (CSV)
+    | Planet | Zodiak | (Markdown Table)
+
 2.  **Panjang Konten**: Setiap BAB harus panjang. Jangan pelit kata-kata. Gali setiap aspek nuansa planet.
-3.  **Sapaan**: Cukup sapa di Bab 1.
+3.  **Sapaan**: Cukup sapa di Bab 1. Bab selanjutnya langsung masuk materi.
 `;
 
-// REVISI: Memecah House menjadi 18 Bab untuk memaksimalkan Halaman
+// REVISI: Prompt Bab disesuaikan agar meminta List, bukan Tabel
 const getSections = (dateContext: string, clientName: string) => [
   // --- PENDAHULUAN & IDENTITAS ---
   { 
     id: 'BAB1', 
     title: 'Bab 1: Cetak Biru Jiwa (Lagna/Ascendant)', 
     prompt: `Tulis analisis mendalam tentang Lagna (Ascendant) klien [[NAME: ${clientName}]].
-    1. Buat Tabel Data Kelahiran (WAJIB Markdown Table).
+    1. **Data Kelahiran**: Sajikan posisi semua planet (Sun sampai Ketu) dalam bentuk **Daftar Poin** (Bukan Tabel). Sertakan House dan Nakshatra.
     2. Jelaskan karakter dasar zodiak Lagna mereka secara detail (min 300 kata).
     3. Jelaskan pengaruh Penguasa Lagna (Chart Ruler) dan posisinya.
     4. Apa "Kesan Pertama" orang lain terhadap mereka?` 
@@ -164,7 +171,7 @@ const getSections = (dateContext: string, clientName: string) => [
     prompt: `Fokus KHUSUS pada Rahu (North Node).
     1. Di area mana mereka merasa "lapar" dan ambisius berlebihan?
     2. Apa tantangan terbesar untuk berevolusi di hidup ini?
-    3. Buat Tabel "Zona Nyaman vs Zona Pertumbuhan".` 
+    3. Buat **Daftar Perbandingan**: "Zona Nyaman (Saat Ini)" vs "Zona Pertumbuhan (Tujuan Rahu)".` 
   },
   { 
     id: 'BAB15', 
@@ -182,17 +189,18 @@ const getSections = (dateContext: string, clientName: string) => [
     prompt: `Analisis Periode Planet (Dasha) yang sedang aktif SAAT INI.
     1. Jelaskan karakter planet yang sedang memerintah hidup mereka.
     2. Apa fokus utama periode ini (Karier? Cinta? Kesehatan?).
-    3. Berikan "Dos and Don'ts" untuk periode ini.` 
+    3. Berikan **Daftar Poin**: "Dos (Lakukan)" dan "Don'ts (Hindari)" untuk periode ini.` 
   },
   { 
     id: 'BAB17', 
     title: 'Bab 17: Roadmap 12 Bulan Ke Depan', 
-    prompt: `Buat Tabel Timeline Prediksi per Triwulan (Quarterly) mulai ${dateContext}.
-    - Q1: Fokus & Saran
-    - Q2: Fokus & Saran
-    - Q3: Fokus & Saran
-    - Q4: Fokus & Saran
-    Berikan detail prediksi spesifik.` 
+    prompt: `Buat **Timeline List** (Bukan Tabel) Prediksi per Triwulan mulai ${dateContext}.
+    Gunakan format:
+    *   **Kuartal 1 (Bulan-Bulan)**:
+        *   *Fokus Utama*: ...
+        *   *Prediksi*: ...
+    
+    Lakukan untuk Q1, Q2, Q3, dan Q4.` 
   },
   { 
     id: 'BAB18', 
@@ -250,7 +258,7 @@ export const generateReport = async (
         [DATA ASTROLOGI]: ${data.rawText || "Lihat file"}
 
         ATURAN UTAMA:
-        1. JANGAN gunakan format CSV. WAJIB Table Markdown (|...|).
+        1. **NO TABLES / NO CSV**: Dilarang menggunakan tabel atau format CSV. Gunakan **LIST / POINTS** untuk semua data.
         2. Tulis dengan PANJANG dan MENDALAM (Target: 2-3 Halaman per Bab).
         3. Gunakan bahasa populer yang mudah dimengerti (Bahasa Manusia).
         4. Pecah paragraf panjang, gunakan Sub-Heading.

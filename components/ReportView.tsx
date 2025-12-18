@@ -9,11 +9,20 @@ interface ReportViewProps {
   onReset: () => void;
   usage: UsageStats | null;
   analysisDate?: string;
+  clientName?: string;
 }
 
-const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analysisDate }) => {
+const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analysisDate, clientName }) => {
   const handlePrint = () => {
+    const originalTitle = document.title;
+    // Set judul halaman agar nama file PDF otomatis menjadi ini
+    document.title = `Hasil Analisis Kosmografi (${clientName || 'Klien'})`;
     window.print();
+    
+    // Kembalikan judul asli setelah dialog print muncul (diberi jeda sedikit)
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 500);
   };
 
   const dateDisplay = analysisDate 
@@ -100,13 +109,11 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                 },
                 strong: ({node, ...props}) => <strong className="text-midnight font-bold border-b border-gold/20" {...props} />,
                 em: ({node, ...props}) => <em className="text-gold-dim italic font-medium px-1 bg-gold/5 rounded-sm" {...props} />,
-                ul: ({node, ...props}) => <ul className="list-none space-y-4 mb-10 pl-4 text-[18px] print:text-[14pt]" {...props} />,
-                li: ({node, ...props}) => (
-                  <li className="flex gap-4 items-start">
-                    <span className="text-gold mt-1.5 text-base flex-shrink-0">✦</span>
-                    <span {...props} />
-                  </li>
-                ),
+                // Custom Unordered List (Bullet Points) with pseudo-element styling for 'li' children
+                ul: ({node, ...props}) => <ul className="list-none space-y-4 mb-10 pl-4 text-[18px] print:text-[14pt] [&>li]:flex [&>li]:gap-4 [&>li]:items-start [&>li]:before:content-['✦'] [&>li]:before:text-gold [&>li]:before:mt-1.5 [&>li]:before:text-base [&>li]:before:flex-shrink-0" {...props} />,
+                // Custom Ordered List (Numbers)
+                ol: ({node, ...props}) => <ol className="list-decimal space-y-4 mb-10 pl-8 text-[18px] print:text-[14pt] marker:text-gold marker:font-cinzel" {...props} />,
+                // Removed custom 'li' to allow 'ul' and 'ol' to control styling via CSS/Tailwind and avoid parent reference issues
                 blockquote: ({node, ...props}) => (
                   <blockquote className="italic text-midnight my-14 bg-gold/5 p-10 rounded-sm text-xl text-center border-y border-gold/20 leading-snug break-inside-avoid" {...props} />
                 ),
@@ -117,7 +124,7 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                     <div className="h-[1px] w-full bg-gold/20"></div>
                   </div>
                 ),
-                // Enhanced Table Styling
+                // Table fallback (just in case AI slips up, though we discouraged it)
                 table: ({node, ...props}) => (
                   <div className="my-12 overflow-hidden border border-gold/20 rounded-sm shadow-sm page-break-inside-avoid bg-white">
                     <table className="w-full border-collapse text-left" {...props} />
