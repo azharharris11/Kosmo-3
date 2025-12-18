@@ -15,54 +15,194 @@ const formatDate = (dateString: string) => {
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// REVISI TOTAL SYSTEM PROMPT: Fokus pada bahasa yang Jelas, Renyah, dan Manusiawi.
+// REVISI: Instruksi untuk Panjang & Detail tapi tetap Bahasa Manusia
 const NATALIE_SYSTEM_PROMPT = `
-Kamu adalah Natalie Lau, seorang konsultan Cosmography yang cerdas, hangat, dan sangat praktis.
+Kamu adalah Natalie Lau, konsultan Cosmography Premium.
+Tujuanmu adalah membuat "Buku Panduan Hidup" (Life Playbook) yang TEBAL, MENDALAM, dan SANGAT DETAIL (Min. 40 Halaman Total).
 
-TARGET AUDIENCE: 
-Orang modern awam yang ingin solusi nyata, bukan kuliah filsafat yang membingungkan.
+GAYA BAHASA:
+1.  **Deep but Clear**: Jelaskan setiap konsep dengan sangat mendalam (minimal 4-5 paragraf per sub-topik), tapi gunakan bahasa Indonesia yang renyah dan populer.
+2.  **Storytelling**: Jangan hanya kasih data. Ceritakan "Mengapa" dan "Bagaimana". Ajak pembaca menyelami diri mereka.
+3.  **Struktur Tulisan**: Gunakan Sub-Judul (Heading 3) di dalam setiap Bab untuk memecah teks panjang agar enak dibaca.
 
-GAYA BAHASA (TONE OF VOICE):
-1.  **Bahasa Manusia Bumi**: Gunakan Bahasa Indonesia yang mengalir, populer, dan enak dibaca (seperti novel best-seller atau artikel majalah premium).
-2.  **Anti-Ribet**: JANGAN gunakan kalimat bertingkat yang terlalu panjang. Pecah menjadi kalimat-kalimat pendek yang punchy.
-3.  **Jelaskan Istilah**: Jika terpaksa menyebut istilah astrologi (misal: "Lagna" atau "Dasha"), WAJIB langsung jelaskan artinya dalam kurung atau analogi sederhana. Contoh: "House 2 (Sektor Keuangan)".
-4.  **Analogi Nyata**: Gunakan perumpamaan dunia kerja, bisnis, atau percintaan sehari-hari agar klien langsung paham.
-
-ATURAN FORMAT (STRICT):
-1.  **TABEL**: Wajib gunakan format Markdown Table standar dengan garis tegak lurus.
-    CONTOH BENAR:
-    | Planet | Posisi |
+FORMATTING (CRITICAL):
+1.  **TABEL MARKDOWN**: WAJIB gunakan format tabel garis tegak.
+    BENAR:
+    | Planet | Zodiak |
     | :--- | :--- |
-    | Sun | House 1 |
+    | Sun | Leo |
     
-    DILARANG format CSV atau list biasa.
-2.  **SAPAAN**: Sapaan "Halo" atau "Selamat Datang" HANYA BOLEH di Bab 1. Bab selanjutnya langsung masuk pembahasan.
-3.  **NO GHOST CODE**: JANGAN pernah menulis simbol coding seperti $kc-3$, {{var}}, atau LaTeX yang tidak perlu. Tulis angka biasa.
-4.  **ANGKA ARAB**: Gunakan "House 10", JANGAN "House to" atau "House X".
-
-PENTING: Jika [KERESAHAN KLIEN] kosong, fokuslah mencari "Potensi Tersembunyi" dan "Hambatan Bawah Sadar" klien.
+    SALAH (JANGAN PERNAH): "Planet","Zodiak" (CSV)
+2.  **Panjang Konten**: Setiap BAB harus panjang. Jangan pelit kata-kata. Gali setiap aspek nuansa planet.
+3.  **Sapaan**: Cukup sapa di Bab 1.
 `;
 
+// REVISI: Memecah House menjadi 18 Bab untuk memaksimalkan Halaman
 const getSections = (dateContext: string, clientName: string) => [
+  // --- PENDAHULUAN & IDENTITAS ---
   { 
     id: 'BAB1', 
-    title: 'Bab 1: Siapa Anda Sebenarnya? (Analisis Lagna)', 
-    prompt: `Tulis pembuka hangat untuk [[NAME: ${clientName}]].
-    1. Buat Tabel: | Planet | Zodiak | House | Nakshatra |.
-    2. Jelaskan "Lagna" (Ascendant) sebagai "Karakter Dasar" mereka dengan bahasa yang sangat mudah dimengerti.
-    3. Apa kekuatan super mereka dan apa kelemahan utamanya?` 
+    title: 'Bab 1: Cetak Biru Jiwa (Lagna/Ascendant)', 
+    prompt: `Tulis analisis mendalam tentang Lagna (Ascendant) klien [[NAME: ${clientName}]].
+    1. Buat Tabel Data Kelahiran (WAJIB Markdown Table).
+    2. Jelaskan karakter dasar zodiak Lagna mereka secara detail (min 300 kata).
+    3. Jelaskan pengaruh Penguasa Lagna (Chart Ruler) dan posisinya.
+    4. Apa "Kesan Pertama" orang lain terhadap mereka?` 
   },
-  { id: 'BAB2', title: 'Bab 2: Potensi Rezeki & Keuangan', prompt: `Analisis House 2 & 11. Fokus: Dari mana uang mereka datang? Apakah dari kerja keras, keberuntungan, atau ide? Beri saran praktis cara mengatur uang sesuai pola bintang mereka.` },
-  { id: 'BAB3', title: 'Bab 3: Gaya Komunikasi & Mental', prompt: `Analisis House 3. Fokus: Bagaimana cara mereka bicara? Apakah mereka tipe pemikir overthinking atau tipe eksekutor?` },
-  { id: 'BAB4', title: 'Bab 4: Ketenangan Hati & Keluarga', prompt: `Analisis House 4. Fokus: Apa yang membuat hati mereka damai? Bagaimana hubungan dengan Ibu/Rumah?` },
-  { id: 'BAB5', title: 'Bab 5: Bakat Kreatif & Hoki', prompt: `Analisis House 5 & 9. Fokus: Apa bakat alami yang mereka bawa lahir? Di mana letak faktor "hoki" mereka?` },
-  { id: 'BAB6', title: 'Bab 6: Cara Menghadapi Masalah', prompt: `Analisis House 6. Fokus: Saat ada masalah atau konflik kerja, bagaimana cara terbaik mereka menyelesaikannya?` },
-  { id: 'BAB7', title: 'Bab 7: Jodoh & Partner Bisnis', prompt: `Analisis House 7. Fokus: Tipe pasangan seperti apa yang cocok? Apakah mereka dominan atau penurut?` },
-  { id: 'BAB8', title: 'Bab 8: Sisi Gelap & Transformasi', prompt: `Analisis House 8 & 12. Fokus: Apa ketakutan terbesar mereka? Bagaimana cara mereka bangkit dari kegagalan?` },
-  { id: 'BAB9', title: 'Bab 9: Karier & Reputasi Publik', prompt: `Analisis House 10. Fokus: Pekerjaan apa yang paling cocok? Apakah cocok jadi bos, profesional, atau seniman?` },
-  { id: 'BAB13', title: 'Bab 10: Misi Jiwa (Rahu & Ketu)', prompt: `Buat Tabel: | Titik | Fokus | Tantangan |. Jelaskan Rahu (Obsesi masa depan) dan Ketu (Beban masa lalu) dengan bahasa sederhana tanpa mistis berlebihan.` },
-  { id: 'BAB14', title: 'Bab 11: Prediksi 1 Tahun Ke Depan', prompt: `Buat Tabel Timeline 12 Bulan (${dateContext}). Fokus: Kapan waktu gas pol? Kapan waktu rem? Berikan prediksi konkret dan saran tindakan nyata.` },
-  { id: 'BAB15', title: 'Bab 12: Kesimpulan & Pesan Akhir', prompt: `Rangkum semua jadi 3 Poin Kunci yang mudah diingat. Berikan satu kalimat mantra penguat untuk mereka. Tutup dengan hangat.` }
+  { 
+    id: 'BAB2', 
+    title: 'Bab 2: Struktur Ego & Emosi (Sun & Moon)', 
+    prompt: `Fokus KHUSUS hanya pada Matahari (Sun) dan Bulan (Moon).
+    1. Sun di Zodiak & House: Jelaskan di mana sumber kebanggaan dan ego mereka.
+    2. Moon di Zodiak & House: Jelaskan kebutuhan emosional terdalam mereka.
+    3. Analisis interaksi antara Kepala (Sun) dan Hati (Moon) mereka. Apakah sinkron atau konflik?` 
+  },
+
+  // --- SEKTOR MATERIAL & FISIK ---
+  { 
+    id: 'BAB3', 
+    title: 'Bab 3: Aset, Nilai Diri & Keuangan (House 2)', 
+    prompt: `Analisis MENDALAM House 2.
+    1. Bagaimana pola mereka mencari uang?
+    2. Apa "Values" atau nilai-nilai moral yang mereka pegang?
+    3. Gaya bicara dan kemampuan verbal mereka.
+    4. Saran finansial spesifik berdasarkan planet di House 2.` 
+  },
+  { 
+    id: 'BAB4', 
+    title: 'Bab 4: Ambisi, Usaha & Komunikasi (House 3)', 
+    prompt: `Analisis MENDALAM House 3.
+    1. Bagaimana gaya komunikasi dan keberanian mereka mengambil risiko?
+    2. Hubungan dengan saudara atau lingkungan dekat.
+    3. Hobi atau keahlian tangan/teknis yang bisa jadi cuan.` 
+  },
+  { 
+    id: 'BAB5', 
+    title: 'Bab 5: Rutinitas, Kesehatan & Kompetisi (House 6)', 
+    prompt: `Analisis MENDALAM House 6.
+    1. Bagaimana cara mereka menghadapi musuh atau konflik kerja?
+    2. Potensi masalah kesehatan atau area tubuh yang perlu dijaga.
+    3. Etos kerja harian dan manajemen stres.` 
+  },
+
+  // --- SEKTOR EMOSIONAL & KREATIF ---
+  { 
+    id: 'BAB6', 
+    title: 'Bab 6: Fondasi Batin & Keluarga (House 4)', 
+    prompt: `Analisis MENDALAM House 4.
+    1. Definisi "Rumah" dan rasa aman bagi mereka.
+    2. Hubungan dengan Ibu atau figur pengasuh.
+    3. Aset properti dan kendaraan (potensi kepemilikan).` 
+  },
+  { 
+    id: 'BAB7', 
+    title: 'Bab 7: Kreativitas & Kecerdasan (House 5)', 
+    prompt: `Analisis MENDALAM House 5.
+    1. Apa bakat alami (Purva Punya) yang dibawa dari lahir?
+    2. Gaya romansa dan cara mengekspresikan cinta.
+    3. Kecerdasan spekulatif (investasi/saham) dan pendidikan.` 
+  },
+
+  // --- SEKTOR HUBUNGAN ---
+  { 
+    id: 'BAB8', 
+    title: 'Bab 8: Dinamika Pasangan & Partner (House 7)', 
+    prompt: `Analisis MENDALAM House 7.
+    1. Tipe pasangan ideal vs tipe pasangan yang sering datang.
+    2. Pola interaksi dalam kontrak bisnis.
+    3. Potensi konflik dalam pernikahan dan solusinya.` 
+  },
+  
+  // --- SEKTOR TRANSENDENSI & KRISIS ---
+  { 
+    id: 'BAB9', 
+    title: 'Bab 9: Transformasi & Sisi Gelap (House 8)', 
+    prompt: `Analisis MENDALAM House 8.
+    1. Ketakutan terbesar dan trauma bawah sadar.
+    2. Potensi warisan, uang orang lain, atau rezeki tak terduga.
+    3. Ketertarikan pada hal mistis, psikologi, atau rahasia.` 
+  },
+  { 
+    id: 'BAB10', 
+    title: 'Bab 10: Keberuntungan & Filosofi (House 9)', 
+    prompt: `Analisis MENDALAM House 9.
+    1. Di mana letak keberuntungan (Luck Factor) mereka?
+    2. Hubungan dengan Ayah, Guru, atau Mentor.
+    3. Pandangan spiritual dan perjalanan jauh (luar negeri).` 
+  },
+
+  // --- SEKTOR PENCAPAIAN ---
+  { 
+    id: 'BAB11', 
+    title: 'Bab 11: Puncak Karier & Reputasi (House 10)', 
+    prompt: `Analisis MENDALAM House 10.
+    1. Apa "Legacy" atau warisan nama baik yang ingin ditinggalkan?
+    2. Profesi yang paling cocok secara astrologi.
+    3. Hubungan dengan atasan atau otoritas.` 
+  },
+  { 
+    id: 'BAB12', 
+    title: 'Bab 12: Jaringan Sosial & Keuntungan Besar (House 11)', 
+    prompt: `Analisis MENDALAM House 11.
+    1. Dari mana datangnya "Uang Besar" (Liquid Cash)?
+    2. Lingkaran pertemanan dan komunitas yang mendukung.
+    3. Cita-cita jangka panjang.` 
+  },
+  { 
+    id: 'BAB13', 
+    title: 'Bab 13: Alam Bawah Sadar & Pengasingan (House 12)', 
+    prompt: `Analisis MENDALAM House 12.
+    1. Apa yang membuat mereka susah tidur atau cemas?
+    2. Potensi sukses di luar negeri atau tempat terisolasi.
+    3. Pengeluaran dan cara mengerem kebocoran finansial.` 
+  },
+
+  // --- SEKTOR KARMA ---
+  { 
+    id: 'BAB14', 
+    title: 'Bab 14: Obsesi & Evolusi Jiwa (Rahu)', 
+    prompt: `Fokus KHUSUS pada Rahu (North Node).
+    1. Di area mana mereka merasa "lapar" dan ambisius berlebihan?
+    2. Apa tantangan terbesar untuk berevolusi di hidup ini?
+    3. Buat Tabel "Zona Nyaman vs Zona Pertumbuhan".` 
+  },
+  { 
+    id: 'BAB15', 
+    title: 'Bab 15: Pelepasan & Bakat Masa Lalu (Ketu)', 
+    prompt: `Fokus KHUSUS pada Ketu (South Node).
+    1. Apa bakat yang sudah dikuasai (bawaan lahir) tapi sering diabaikan?
+    2. Di area mana mereka sering merasa hampa atau ingin lari?
+    3. Saran spiritual untuk keseimbangan.` 
+  },
+
+  // --- PREDIKSI & PENUTUP ---
+  { 
+    id: 'BAB16', 
+    title: 'Bab 16: Analisis Periode Saat Ini (Mahadasha)', 
+    prompt: `Analisis Periode Planet (Dasha) yang sedang aktif SAAT INI.
+    1. Jelaskan karakter planet yang sedang memerintah hidup mereka.
+    2. Apa fokus utama periode ini (Karier? Cinta? Kesehatan?).
+    3. Berikan "Dos and Don'ts" untuk periode ini.` 
+  },
+  { 
+    id: 'BAB17', 
+    title: 'Bab 17: Roadmap 12 Bulan Ke Depan', 
+    prompt: `Buat Tabel Timeline Prediksi per Triwulan (Quarterly) mulai ${dateContext}.
+    - Q1: Fokus & Saran
+    - Q2: Fokus & Saran
+    - Q3: Fokus & Saran
+    - Q4: Fokus & Saran
+    Berikan detail prediksi spesifik.` 
+  },
+  { 
+    id: 'BAB18', 
+    title: 'Bab 18: Manifesto Natalie & Penutup', 
+    prompt: `Rangkuman Eksekutif.
+    1. Tulis 3 Kekuatan Terbesar Klien.
+    2. Tulis 3 Kelemahan yang Wajib Diwaspadai.
+    3. Tulis 1 Mantra/Affirmasi Penguat Jiwa.
+    Tutup dengan pesan yang sangat menyentuh dan memberdayakan.` 
+  }
 ];
 
 export const generateReport = async (
@@ -85,8 +225,8 @@ export const generateReport = async (
   const sections = getSections(formatDate(data.analysisDate), currentClientName);
   
   const concernContext = data.concerns && data.concerns.trim().length > 3
-    ? `[CURHAT KLIEN]: "${data.concerns}" (Jawab curhatan ini dengan solusi praktis)`
-    : `[CURHAT KLIEN]: Klien ingin tahu potensi terbaik dirinya.`;
+    ? `[CURHAT KLIEN]: "${data.concerns}" (Gunakan curhat ini sebagai konteks analisis di bab yang relevan)`
+    : `[CURHAT KLIEN]: Klien ingin analisis mendalam (Deep Dive).`;
 
   for (const section of sections) {
     let attempts = 0;
@@ -101,16 +241,19 @@ export const generateReport = async (
         NOMOR BAB: ${section.id}
         JUDUL BAB: # ${section.title}
         
-        RINGKASAN SEBELUMNYA: ${rollingSummary || "Awal Analisis"}
+        RINGKASAN BAB SEBELUMNYA: ${rollingSummary || "Awal Analisis"}
         
         ${concernContext}
         
-        [INSTRUKSI]: ${section.prompt}
+        [INSTRUKSI PENULISAN]: ${section.prompt}
         
         [DATA ASTROLOGI]: ${data.rawText || "Lihat file"}
 
-        INGAT: Gunakan bahasa populer, mudah dimengerti, paragraf pendek.
-        JANGAN buat tabel rusak. JANGAN menyapa ulang.
+        ATURAN UTAMA:
+        1. JANGAN gunakan format CSV. WAJIB Table Markdown (|...|).
+        2. Tulis dengan PANJANG dan MENDALAM (Target: 2-3 Halaman per Bab).
+        3. Gunakan bahasa populer yang mudah dimengerti (Bahasa Manusia).
+        4. Pecah paragraf panjang, gunakan Sub-Heading.
         `;
 
         const processedFiles: any[] = [];
@@ -119,12 +262,12 @@ export const generateReport = async (
           processedFiles.push({ inlineData: { mimeType: file.type, data: base64Data } });
         }
 
-        const chainTag = `\n\n[[SUMMARY: (Rangkum 1 kalimat poin utama bab ini untuk konteks bab selanjutnya)]]`;
+        const chainTag = `\n\n[[SUMMARY: (Rangkum 1 kalimat inti bab ini untuk Natalie ingat di bab selanjutnya)]]`;
 
         const responseStream = await ai.models.generateContentStream({
           model: model,
           contents: { role: 'user', parts: [{ text: prompt + chainTag }, ...processedFiles] },
-          config: { systemInstruction: NATALIE_SYSTEM_PROMPT, temperature: 0.7 } 
+          config: { systemInstruction: NATALIE_SYSTEM_PROMPT, temperature: 0.75 } 
         });
 
         let sectionContent = "";
@@ -140,8 +283,6 @@ export const generateReport = async (
               if (nameMatch && onNameDetected) onNameDetected(nameMatch[1].trim());
             }
             
-            // REVISI LAYOUT: Menghapus "<div class='page-break'>" manual
-            // Kita biarkan komponen ReportView menangani page break via Judul H1
             let displayContent = (accumulatedReport ? accumulatedReport + "\n\n" : "") + sectionContent;
             displayContent = displayContent.replace(nameRegex, "").replace(summaryRegex, "").trim();
             onStream(displayContent);
@@ -163,8 +304,6 @@ export const generateReport = async (
 
         let cleanText = sectionContent.replace(nameRegex, "").replace(summaryRegex, "").trim();
         
-        // Cukup tambahkan newlines, jangan tambah page break string manual
-        // karena setiap Section dimulai dengan '# Judul' yang akan otomatis di-page break oleh ReportView
         if (accumulatedReport) accumulatedReport += "\n\n"; 
         accumulatedReport += cleanText;
         sectionSuccess = true;
@@ -172,7 +311,7 @@ export const generateReport = async (
       } catch (err) {
         attempts++;
         if (attempts >= maxAttempts) {
-          accumulatedReport += `\n\n*(Maaf, Natalie kehilangan sinyal saat menulis Bab ${section.id}. Kita lanjut ke bab berikutnya...)*`;
+          accumulatedReport += `\n\n*(Sinyal kosmik terputus di Bab ${section.id}. Melanjutkan ke bab berikutnya...)*`;
         } else {
           await wait(2000 * attempts);
         }
