@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Natalie Lau - Cosmography Consultant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              midnight: '#0a0e17',
+              gold: '#d4af37',
+              'gold-light': '#f3e5ab',
+              'gold-dim': '#8a7122',
+              parchment: '#fcfbf8',
+              charcoal: '#2c3e50'
+            },
+            fontFamily: {
+              serif: ['"Cormorant Garamond"', 'serif'],
+              display: ['"Playfair Display"', 'serif'],
+              cinzel: ['"Cinzel"', 'serif'],
+            },
+            typography: (theme) => ({
+              DEFAULT: {
+                css: {
+                  color: theme('colors.charcoal'),
+                  fontFamily: theme('fontFamily.serif'),
+                },
+              },
+            }),
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #0a0e17;
+        color: #fcfbf8;
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0a0e17; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #333; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #d4af37; 
+      }
+
+      /* Print Styles for PDF Generation */
+      @media print {
+        @page {
+          margin: 1cm;
+          size: A4;
+        }
+        
+        /* Reset Body/HTML for printing */
+        html, body {
+          height: auto !important;
+          overflow: visible !important;
+          background-color: white !important;
+          background-image: none !important;
+          color: black !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        /* Hide UI Elements */
+        .no-print {
+          display: none !important;
+        }
+
+        /* Container Overrides */
+        #root, .report-container, .prose {
+          width: 100% !important;
+          max-width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          box-shadow: none !important;
+          background: white !important;
+          color: black !important;
+        }
+
+        /* Typography Overrides */
+        h1, h2, h3, h4, h5, h6, p, span, div, li, strong, em, blockquote {
+          color: black !important;
+          text-shadow: none !important;
+        }
+        
+        /* Ensure Links are readable */
+        a {
+          text-decoration: underline;
+          color: black !important;
+        }
+
+        /* Specific Element Styling for Print */
+        .border-gold {
+          border-color: #000 !important;
+          border-width: 1px !important;
+        }
+        
+        /* Page Breaks */
+        h1, h2 {
+          page-break-before: always;
+          margin-top: 2cm !important;
+        }
+        h1:first-of-type {
+          page-break-before: avoid;
+          margin-top: 0 !important;
+        }
+        blockquote, ul, ol, p {
+          page-break-inside: avoid;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-markdown": "https://esm.sh/react-markdown@^10.1.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
