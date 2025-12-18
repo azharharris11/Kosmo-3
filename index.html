@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -25,7 +24,15 @@
               serif: ['"Cormorant Garamond"', 'serif'],
               display: ['"Playfair Display"', 'serif'],
               cinzel: ['"Cinzel"', 'serif'],
-            }
+            },
+            typography: (theme) => ({
+              DEFAULT: {
+                css: {
+                  color: theme('colors.charcoal'),
+                  fontFamily: theme('fontFamily.serif'),
+                },
+              },
+            }),
           },
         },
       }
@@ -35,23 +42,92 @@
         background-color: #0a0e17;
         color: #fcfbf8;
       }
-      ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: #0a0e17; }
-      ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #d4af37; }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0a0e17; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #333; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #d4af37; 
+      }
 
+      /* Print Styles for PDF Generation */
       @media print {
-        @page { margin: 1cm; size: A4; }
-        html, body { height: auto !important; background-color: white !important; color: black !important; }
-        .no-print { display: none !important; }
-        .report-container { box-shadow: none !important; width: 100% !important; margin: 0 !important; }
+        @page {
+          margin: 1cm;
+          size: A4;
+        }
+        
+        /* Reset Body/HTML for printing */
+        html, body {
+          height: auto !important;
+          overflow: visible !important;
+          background-color: white !important;
+          background-image: none !important;
+          color: black !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        /* Hide UI Elements */
+        .no-print {
+          display: none !important;
+        }
+
+        /* Container Overrides */
+        #root, .report-container, .prose {
+          width: 100% !important;
+          max-width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          box-shadow: none !important;
+          background: white !important;
+          color: black !important;
+        }
+
+        /* Typography Overrides */
+        h1, h2, h3, h4, h5, h6, p, span, div, li, strong, em, blockquote {
+          color: black !important;
+          text-shadow: none !important;
+        }
+        
+        /* Ensure Links are readable */
+        a {
+          text-decoration: underline;
+          color: black !important;
+        }
+
+        /* Specific Element Styling for Print */
+        .border-gold {
+          border-color: #000 !important;
+          border-width: 1px !important;
+        }
+        
+        /* Page Breaks */
+        h1, h2 {
+          page-break-before: always;
+          margin-top: 2cm !important;
+        }
+        h1:first-of-type {
+          page-break-before: avoid;
+          margin-top: 0 !important;
+        }
+        blockquote, ul, ol, p {
+          page-break-inside: avoid;
+        }
       }
     </style>
   <script type="importmap">
 {
   "imports": {
     "react-markdown": "https://esm.sh/react-markdown@^10.1.0",
-    "remark-gfm": "https://esm.sh/remark-gfm@^4.0.0",
     "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
     "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
