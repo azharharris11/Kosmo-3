@@ -109,11 +109,13 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                 },
                 strong: ({node, ...props}) => <strong className="text-midnight font-bold border-b border-gold/20" {...props} />,
                 em: ({node, ...props}) => <em className="text-gold-dim italic font-medium px-1 bg-gold/5 rounded-sm" {...props} />,
-                // Custom Unordered List (Bullet Points) with pseudo-element styling for 'li' children
-                ul: ({node, ...props}) => <ul className="list-none space-y-4 mb-10 pl-4 text-[18px] print:text-[14pt] [&>li]:flex [&>li]:gap-4 [&>li]:items-start [&>li]:before:content-['✦'] [&>li]:before:text-gold [&>li]:before:mt-1.5 [&>li]:before:text-base [&>li]:before:flex-shrink-0" {...props} />,
-                // Custom Ordered List (Numbers)
-                ol: ({node, ...props}) => <ol className="list-decimal space-y-4 mb-10 pl-8 text-[18px] print:text-[14pt] marker:text-gold marker:font-cinzel" {...props} />,
-                // Removed custom 'li' to allow 'ul' and 'ol' to control styling via CSS/Tailwind and avoid parent reference issues
+                ul: ({node, ...props}) => <ul className="list-none space-y-4 mb-10 pl-4 text-[18px] print:text-[14pt]" {...props} />,
+                li: ({node, ...props}) => (
+                  <li className="flex gap-4 items-start">
+                    <span className="text-gold mt-1.5 text-base flex-shrink-0">✦</span>
+                    <span {...props} />
+                  </li>
+                ),
                 blockquote: ({node, ...props}) => (
                   <blockquote className="italic text-midnight my-14 bg-gold/5 p-10 rounded-sm text-xl text-center border-y border-gold/20 leading-snug break-inside-avoid" {...props} />
                 ),
@@ -124,7 +126,7 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                     <div className="h-[1px] w-full bg-gold/20"></div>
                   </div>
                 ),
-                // Table fallback (just in case AI slips up, though we discouraged it)
+                // Enhanced Table Styling
                 table: ({node, ...props}) => (
                   <div className="my-12 overflow-hidden border border-gold/20 rounded-sm shadow-sm page-break-inside-avoid bg-white">
                     <table className="w-full border-collapse text-left" {...props} />
