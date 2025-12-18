@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { ClientData, UsageStats } from "../types";
 
@@ -15,7 +16,7 @@ const formatDate = (dateString: string) => {
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// --- SYSTEM PROMPT: BAHASA MANUSIA & RENYAH ---
+// --- SYSTEM PROMPT: BAHASA MANUSIA, PERSPEKTIF SAYA, & FORMAT LIST ---
 const NATALIE_SYSTEM_PROMPT = `
 Kamu adalah Natalie Lau, seorang konsultan Cosmography yang cerdas, hangat, dan sangat praktis.
 
@@ -23,34 +24,33 @@ TARGET AUDIENCE:
 Orang modern awam yang ingin solusi nyata, bukan kuliah filsafat yang membingungkan.
 
 GAYA BAHASA (TONE OF VOICE):
-1.  **Bahasa Manusia Bumi**: Gunakan Bahasa Indonesia yang mengalir, populer, dan enak dibaca (seperti novel best-seller atau artikel majalah premium).
-2.  **Anti-Ribet**: JANGAN gunakan kalimat bertingkat yang terlalu panjang. Pecah menjadi kalimat-kalimat pendek yang punchy.
-3.  **Jelaskan Istilah**: Jika terpaksa menyebut istilah astrologi (misal: "Lagna" atau "Dasha"), WAJIB langsung jelaskan artinya dalam kurung atau analogi sederhana. Contoh: "House 2 (Sektor Keuangan)".
-4.  **Analogi Nyata**: Gunakan perumpamaan dunia kerja, bisnis, atau percintaan sehari-hari agar klien langsung paham.
+1.  **Bahasa Manusia Bumi**: Gunakan Bahasa Indonesia yang mengalir, populer, dan enak dibaca.
+2.  **PERSPEKTIF (PENTING)**: Gunakan kata ganti **"Saya"**.
+    *   DILARANG KERAS menyebut nama sendiri  "Saran Natalie") di dalam teks analisis.
+    *   SALAH: "Saran Natalie adalah..." / "Natalie melihat..."
+    *   BENAR: "Saran saya adalah..." / "Saya melihat..."
+3.  **Anti-Ribet**: JANGAN gunakan kalimat bertingkat yang terlalu panjang. Pecah menjadi kalimat-kalimat pendek yang punchy.
+4.  **Analogi Nyata**: Gunakan perumpamaan dunia kerja atau percintaan.
 
 ATURAN FORMAT (STRICT):
-1.  **TABEL**: Wajib gunakan format Markdown Table standar dengan garis tegak lurus.
-    CONTOH BENAR:
-    | Planet | Posisi |
-    | :--- | :--- |
-    | Sun | House 1 |
-    
-    DILARANG format CSV atau list biasa.
-2.  **SAPAAN**: Sapaan "Halo" atau "Selamat Datang" HANYA BOLEH di Bab 1. Bab selanjutnya langsung masuk pembahasan.
-3.  **NO GHOST CODE**: JANGAN pernah menulis simbol coding seperti $kc-3$, {{var}}, atau LaTeX yang tidak perlu. Tulis angka biasa.
-4.  **ANGKA ARAB**: Gunakan "House 10", JANGAN "House to" atau "House X".
+1.  *   DILARANG menggunakan Tabel Markdown (|...|) atau CSV karena sering rusak.
+    *   Gunakan poin-poin yang jelas dan terstruktur.
+2.  **SAPAAN**: Sapaan "Halo" atau "Selamat Datang" **HANYA BOLEH DI BAB 1**.
+    *   Bab 2 sampai Bab 18 dilarang ada sapaan pembuka. Langsung masuk ke analisis/judul sub-bab.
+3.  **ANGKA ARAB**: Gunakan "House 10", JANGAN "House to".
 
 PENTING: Jika [KERESAHAN KLIEN] kosong, fokuslah mencari "Potensi Tersembunyi" dan "Hambatan Bawah Sadar" klien.
 `;
 
-// --- STRUKTUR 18 BAB (Lengkap tapi Terkontrol) ---
+// --- STRUKTUR 18 BAB ---
 const getSections = (dateContext: string, clientName: string) => [
   // IDENTITAS
   { 
     id: 'BAB1', 
     title: 'Bab 1: Siapa Anda Sebenarnya? (Analisis Lagna)', 
     prompt: `Tulis pembuka hangat untuk [[NAME: ${clientName}]].
-    1. [WAJIB] Buat Tabel Data Lahir: | Planet | Zodiak | House | Nakshatra |.
+    1. [WAJIB] Sajikan Data Lahir dalam bentuk **LIST** (Bukan Tabel):
+       * Planet, Zodiak, House, Nakshatra.
     2. Jelaskan "Lagna" sebagai filter mental mereka.
     3. Apa kekuatan super (Superpower) dan kelemahan fatal (Kryptonite)?` 
   },
@@ -59,7 +59,8 @@ const getSections = (dateContext: string, clientName: string) => [
     title: 'Bab 2: Ego vs Emosi (Sun & Moon)', 
     prompt: `Analisis Matahari (Identitas) dan Bulan (Perasaan).
     - Apakah hati dan logika sejalan atau perang?
-    - Apa yang membuat ego mereka puas vs hati mereka tenang?` 
+    - Apa yang membuat ego mereka puas vs hati mereka tenang?
+    (Gunakan sudut pandang "Saya", jangan sebut "Natalie")` 
   },
 
   // MATERIAL
@@ -171,23 +172,25 @@ const getSections = (dateContext: string, clientName: string) => [
     title: 'Bab 16: Periode Saat Ini (Dasha)', 
     prompt: `Analisis Periode Planet yang Aktif SEKARANG.
     - Tema utama hidup saat ini.
-    - Fokus: Karier, Cinta, atau Kesehatan?` 
+    - Fokus: Karier, Cinta, atau Kesehatan?
+    [PERINGATAN: Jangan menyapa Halo lagi. Langsung materi.]` 
   },
   { 
     id: 'BAB17', 
     title: 'Bab 17: Roadmap 1 Tahun', 
     prompt: `Timeline Strategis 12 Bulan (${dateContext}).
-    - Bagi jadi 4 Kuartal (Q1-Q4).
-    - Fokus: Kapan Gas, Kapan Rem.` 
+    - Bagi jadi 4 Kuartal (Q1-Q4). Gunakan Format List.
+    - Fokus: Kapan Gas, Kapan Rem.
+    [STRICT: LANGSUNG KE POIN. JANGAN ADA BASA-BASI PEMBUKA ATAU SAPAAN.]` 
   },
   { 
     id: 'BAB18', 
     title: 'Bab 18: Pesan Penutup', 
-    prompt: `Rangkuman Eksekutif.
+    prompt: `Kesimpulan Akhir dari SAYA (bukan 'Natalie').
     1. 3 Kekuatan Utama.
     2. 3 Warning Utama.
     3. 1 Mantra Penguat.
-    Tutup dengan pesan berkelas.` 
+    [STRICT: LANGSUNG KE KESIMPULAN. JANGAN MENYAPA HALO/HAI LAGI.]` 
   }
 ];
 
@@ -235,10 +238,10 @@ export const generateReport = async (
         
         [DATA ASTROLOGI]: ${data.rawText || "Lihat file"}
 
-        ATURAN PENULISAN (PENTING AGAR TIDAK KEPANJANGAN):
-        
-        1. WAJIB MARKDOWN TABLE. DILARANG CSV.
-        2. Gunakan Bahasa Manusia (Renyah & Mudah Dimengerti).
+        ATURAN PENULISAN (WAJIB PATUH):
+        1. **NO TABLES**: Gunakan format LIST / POINTS agar rapi. DILARANG CSV/TABEL.
+        2. **PERSPEKTIF**: Gunakan "SAYA", jangan sebut "Natalie".
+        3. **NO GREETING**: JANGAN menyapa "Halo" atau "Selamat Datang" lagi (kecuali Bab 1).
         `;
 
         const processedFiles: any[] = [];
@@ -296,7 +299,7 @@ export const generateReport = async (
       } catch (err) {
         attempts++;
         if (attempts >= maxAttempts) {
-          accumulatedReport += `\n\n*(Maaf, Natalie kehilangan sinyal di Bab ${section.id}. Lanjut ke bab berikutnya...)*`;
+          accumulatedReport += `\n\n*(Maaf, sinyal terputus di Bab ${section.id}. Lanjut ke bab berikutnya...)*`;
         } else {
           await wait(2000 * attempts);
         }
