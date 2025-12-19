@@ -17,22 +17,17 @@ const formatDate = (dateString: string) => {
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// --- SYSTEM PROMPT: THE STRATEGIC CONSULTANT (UPDATED RULES) ---
+// --- SYSTEM PROMPT: THE STRATEGIC CONSULTANT (CLEAR & DIRECT) ---
 const NATALIE_SYSTEM_PROMPT = `
-Kamu adalah Natalie Lau, Konsultan Kosmografi Strategis untuk klien profesional.
-Kamu BUKAN peramal nasib, tapi "Strategic Advisor" yang menggunakan data planet untuk memetakan peluang dan risiko.
+Kamu adalah Natalie Lau, Konsultan Astrologi Weda (Vedic) untuk klien profesional.
 
-ATURAN MUTLAK (STRICT RULES):
-1. **TERMINOLOGI**: Gunakan istilah "KOSMOGRAFI", JANGAN gunakan kata "Astrologi".
-2. **NO MISTIK/RELIGIUS**: DILARANG KERAS menyarankan Mantra, Doa, Ritual Menyembah, Sesajen, atau hal berbau agama/klenik. Fokus sepenuhnya pada strategi psikologis, pengambilan keputusan, dan tindakan nyata (actionable).
-3. **KEJUJURAN BRUTAL (NO SUGARCOATING)**: Bongkar sisi gelap, kebiasaan buruk, dan kelemahan fatal klien dengan tajam dan jujur. Jangan hanya memuji. Klien butuh cermin realita untuk refleksi, bukan pujian palsu.
-4. **LOKASI SPESIFIK**: Jangan gunakan arah mata angin abstrak (misal: "Pergi ke Utara"). Berikan nama **KOTA** atau **NEGARA** spesifik. Asumsikan klien saat ini tinggal di **INDONESIA**.
-   - Contoh Salah: "Energi Anda bagus di Selatan."
-   - Contoh Benar: "Energi Anda sangat kuat di kota seperti Yogyakarta atau negara Australia."
-5. **WAKTU MANUSIA**: Jangan gunakan jargon transit planet untuk saran waktu (misal: "Saat Jupiter masuk Aquarius"). Gunakan **TANGGAL, BULAN, atau MINGGU KE-X**.
-   - Contoh Salah: "Lakukan saat Bulan transit di Nakshatra X."
-   - Contoh Benar: "Waktu terbaik Anda adalah Minggu ke-2 bulan Oktober."
-6. **BAHASA**: Gunakan Bahasa Indonesia yang lugas, profesional, mengalir, dan mudah dimengerti orang awam.
+PRINSIP UTAMA: **KEJELASAN ADALAH KEKUATAN.**
+
+GAYA BAHASA:
+1. **LUGAS & MENGALIR**: Gunakan Bahasa Indonesia yang baik, benar, dan enak dibaca. Hindari bahasa yang terlalu puitis, abstrak, atau "langit".
+2. **JANGAN PAKAI ISTILAH ANEH**: Hindari istilah buatan sendiri seperti "The Saboteur", "Archetype", "Energy Vampires". Gunakan bahasa manusia: "Kelemahan", "Karakter Dasar", "Penguras Energi".
+3. **FOKUS PADA SOLUSI**: Klien tidak butuh teka-teki. Mereka butuh diagnosis masalah dan solusi konkret.
+4. **STRUKTUR NARASI**: Tulislah dalam bentuk paragraf yang rapi (seperti artikel majalah bisnis atau psikologi populer). Jangan gunakan bullet points jika bisa dijelaskan dengan kalimat.
 
 JANGAN PERNAH MENULIS ULANG INSTRUKSI PROMPT DI HASIL OUTPUT.
 `;
@@ -42,15 +37,18 @@ const getSections = (dateContext: string, clientName: string) => [
   // --- BAGIAN 0: SURAT PENGANTAR ---
   {
     id: 'PREFACE',
-    title: 'Surat Pengantar & Metodologi',
+    title: 'Surat Pengantar',
     prompt: `
-    TUGAS: Tulis surat pembuka yang personal namun tegas untuk ${clientName}.
+    TUGAS: Tulis surat pembuka yang personal untuk ${clientName}.
     
-    POIN PENTING YANG HARUS ADA:
-    1. Sambut klien di "Kosmografi Strategic Office".
-    2. **DISCLAIMER METODE (WAJIB)**: Jelaskan secara eksplisit bahwa analisis ini menggunakan **Kosmografi Sidereal** dengan perhitungan **Ayanamsa Raman** (Metode Timur) yang mengutamakan akurasi astronomi.
-    3. Tegaskan: "Jangan kaget jika 'Sun Sign' (Zodiak) Anda berbeda dengan yang Anda yakini selama ini (Western/Tropical). Tropical berbasis musim, Sidereal berbasis posisi bintang aktual di langit."
-    4. Tujuan laporan: Membedah karakter dan potensi secara objektif tanpa bumbu manis.
+    Isi Surat:
+    - Sambut klien dengan hangat.
+    - Jelaskan bahwa analisis ini bertujuan membedah potensi dan hambatan mereka secara objektif menggunakan data astrologi.
+    - Tekankan bahwa astrologi adalah peta cuaca, tapi klienlah nakhodanya. Hasil akhir tetap di tangan usaha mereka.
+    Terminologi: Mengganti "Astrologi" menjadi "Kosmografi".
+Disclaimer Awal: Menambahkan penjelasan tentang perbedaan sistem Sidereal (Raman Ayanamsa) vs Western (Tropical) di surat pengantar.
+
+    Gaya: Profesional, Ramah, Membumi.
     `
   },
 
@@ -62,10 +60,12 @@ const getSections = (dateContext: string, clientName: string) => [
     TUGAS: Jelaskan siapa klien ini sebenarnya (Big Three: Sun, Moon, Ascendant).
     
     Instruksi Penulisan:
-    1. Ceritakan karakter aslinya secara utuh. Apa kekuatan terbesarnya?
-    2. **REALITY CHECK**: Bongkar sisi manipulatif, malas, atau sifat buruk bawaan dari kombinasi planetnya. Jujurlah.
-    3. Apa paradoks dalam dirinya? (Misal: Terlihat kuat padahal rapuh).
-    4. Tutup dengan tema utama hidupnya tahun ini.
+    1. Ceritakan karakter aslinya secara utuh. Apa kekuatan terbesarnya yang paling menonjol?
+    2. Apa paradoks atau sisi unik dari kepribadiannya?
+    3. Jelaskan juga "Blindspot" atau kelemahan fatal yang sering tidak dia sadari, tapi sering merusak rencananya sendiri.
+    4. Tutup dengan misi atau tema utama hidupnya tahun ini.
+    
+    Gunakan bahasa yang deskriptif tapi mudah dipahami.
     `
   },
   { 
@@ -76,22 +76,22 @@ const getSections = (dateContext: string, clientName: string) => [
     TUGAS: Analisis cara kerja pikiran klien.
     
     Instruksi:
-    - Bagaimana cara dia mengambil keputusan? Logis atau Emosional?
-    - **KELEMAHAN MENTAL**: Apa kecenderungan berpikir buruknya? (Overthinking, paranoid, sulit fokus, atau plin-plan?). Katakan apa adanya.
-    - Berikan solusi latihan mental (mindset) untuk memperbaiki kelemahan tersebut.
+    - Bagaimana cara dia mengambil keputusan? (Logika vs Perasaan?)
+    - Apa yang sering membuat pikirannya ruwet atau stres (overthinking)?
+    - Berikan saran konkret bagaimana cara dia menenangkan pikiran agar bisa fokus.
     ` 
   },
   { 
     id: 'BAB2', 
-    title: 'Bab 2: Stamina & Gaya Kerja', 
+    title: 'Bab 2: Stamina & Produktivitas', 
     prompt: `
     [Fokus: Sun & Mars & House 6]
-    TUGAS: Analisis produktivitas.
+    TUGAS: Analisis gaya kerja dan energi.
     
     Instruksi:
-    - Apakah dia tipe pekerja keras atau cenderung menunda-nunda (procrastinator)?
-    - Apa **KEBIASAAN BURUK** yang merusak kesehatannya? (Misal: Begadang, pola makan buruk, malas gerak). Tegur dia.
-    - Strategi mengatur jadwal harian yang realistis.
+    - Apakah dia tipe orang yang kerjanya cepat (sprint) atau tahan banting (marathon)?
+    - Hal apa saja yang biasanya membuat energinya cepat habis (misal: rutinitas monoton, drama kantor, kurang tidur)?
+    - Berikan strategi mengatur jadwal harian yang cocok dengan tubuh/energinya.
     ` 
   },
   { 
@@ -99,25 +99,25 @@ const getSections = (dateContext: string, clientName: string) => [
     title: 'Bab 3: Potensi Karir & Keuangan', 
     prompt: `
     [Fokus: House 2, 10, Jupiter]
-    TUGAS: Analisis rezeki dan profesi.
+    TUGAS: Analisis rezeki dan pekerjaan.
     
     Instruksi:
-    - Bidang industri apa yang paling menghasilkan uang untuknya?
-    - **BLINDSPOT KEUANGAN**: Kenapa dia mungkin sulit kaya atau uangnya cepat habis? (Boros, tertipu teman, pelit, atau takut ambil risiko?).
-    - Berikan strategi bisnis/karir yang konkret.
+    - Di bidang apa potensi kekayaan terbesarnya? (Komunikasi, dagang, jasa, teknologi, dll?)
+    - Apa hambatan mental yang sering menghalangi rezekinya (misal: takut rugi, terlalu boros, kurang ambisi)?
+    - Berikan strategi karir/bisnis yang praktis untuk dijalankan.
     ` 
   },
   { 
     id: 'BAB4', 
-    title: 'Bab 4: Risiko & Tantangan Hidup', 
+    title: 'Bab 4: Risiko & Tantangan', 
     prompt: `
     [Fokus: House 8, 12, Saturn]
-    TUGAS: Manajemen risiko (Risk Assessment).
+    TUGAS: Manajemen risiko hidup.
     
     Instruksi:
-    - Identifikasi ancaman terbesar. Apakah musuhnya adalah orang lain (penipuan, persaingan) atau **DIRINYA SENDIRI** (sabotase diri)?
-    - Peringatkan tentang periode atau situasi di mana dia sering jatuh.
-    - Bagaimana cara mencegah kehancuran tersebut dengan tindakan logis (bukan ritual).
+    - Identifikasi ancaman terbesar bagi klien. Apakah musuhnya datang dari luar (orang jahat, situasi mendadak) atau dari dalam diri sendiri (rasa takut, malas)?
+    - Kapan atau dalam situasi apa dia harus ekstra hati-hati?
+    - Bagaimana cara mencegah masalah-masalah ini terjadi?
     ` 
   },
   { 
@@ -128,22 +128,23 @@ const getSections = (dateContext: string, clientName: string) => [
     TUGAS: Analisis hubungan (Asmara & Bisnis).
     
     Instruksi:
-    - Tipe partner seperti apa yang cocok?
-    - **POLA TOKSIK**: Kesalahan apa yang SELALU dia ulangi dalam hubungan? (Terlalu posesif, terlalu dingin, selalu memilih orang yang salah?). Kritiklah hal ini.
-    - Saran untuk memperbaiki kualitas interaksi sosialnya.
+    - Tipe pasangan atau rekan kerja seperti apa yang cocok untuknya?
+    - kapan dan dimana jodohnya dengan detail
+    - Pola buruk apa yang sering dia ulangi dalam hubungan? (Misal: terlalu dominan, terlalu pasrah, salah pilih orang?)
+    - Saran untuk memperbaiki kualitas hubungannya.
+    - 
     ` 
   },
   { 
     id: 'BAB6', 
-    title: 'Bab 6: Geografi & Lingkungan', 
+    title: 'Bab 6: Lingkungan & Tempat Tinggal', 
     prompt: `
     [Fokus: House 4, 9]
-    TUGAS: Saran lokasi strategis.
+    TUGAS: Saran lokasi dan suasana.
     
     Instruksi:
-    - Di lingkungan seperti apa dia akan produktif?
-    - **LOKASI SPESIFIK**: Sebutkan nama **KOTA** (di Indonesia) atau **NEGARA** yang energinya cocok untuk klien. 
-    - JANGAN gunakan "Utara/Selatan". Langsung sebut contoh: "Energi Anda cocok di Jakarta Selatan, Bali, atau negara seperti Jepang."
+    - Di lingkungan seperti apa dia akan merasa damai dan produktif? (Kota sibuk, dekat alam, rumah minimalis, dll?) (jelaskan dengan spesifik jangan arah selatan, tp sebut kota atau negara, asumsi mereka tinggal di indonesia)
+    - Saran penataan ruang sederhana untuk mendukung mood-nya.
     ` 
   },
 
@@ -152,11 +153,11 @@ const getSections = (dateContext: string, clientName: string) => [
     id: 'BAB7_Q1', 
     title: 'Timeline Q1 (Januari - Maret)', 
     prompt: `
-    TUGAS: Prediksi tren kehidupan 3 bulan pertama (Mulai ${dateContext}).
+    TUGAS: Prediksi tren kehidupan untuk 3 bulan pertama (Mulai ${dateContext}).
     
     Instruksi:
-    - Jelaskan fokus utama di setiap bulan.
-    - **WAKTU SPESIFIK**: Sebutkan minggu ke berapa atau tanggal kisaran untuk bertindak atau berdiam diri. Jangan sebut nama transit planet.
+    Jelaskan fokus utama di setiap bulan. Apakah bulan untuk "Gas Pol", "Istirahat", atau "Hati-hati"?
+    Gunakan bahasa yang prediktif namun realistis.sebut tanggal/Bulan, bukan "Transit Jupiter".
     ` 
   },
   { 
@@ -164,7 +165,7 @@ const getSections = (dateContext: string, clientName: string) => [
     title: 'Timeline Q2 (April - Juni)', 
     prompt: `
     TUGAS: Prediksi tren April - Juni.
-    Jelaskan peluang dan tantangan. Kapan waktu terbaik untuk eksekusi ide?
+    Jelaskan peluang dan tantangan di periode ini secara berurutan.sebut tanggal/Bulan, bukan "Transit Jupiter".
     ` 
   },
   { 
@@ -172,7 +173,7 @@ const getSections = (dateContext: string, clientName: string) => [
     title: 'Timeline Q3 (Juli - September)', 
     prompt: `
     TUGAS: Prediksi tren Juli - September.
-    Peringatan apa yang harus diwaspadai di periode ini?
+    Fokus pada strategi yang harus dilakukan.sebut tanggal/Bulan, bukan "Transit Jupiter".
     ` 
   },
   { 
@@ -180,23 +181,22 @@ const getSections = (dateContext: string, clientName: string) => [
     title: 'Timeline Q4 (Oktober - Desember)', 
     prompt: `
     TUGAS: Prediksi tren Oktober - Desember.
-    Bagaimana menutup tahun dengan kemenangan?
+    Bagaimana menutup tahun dengan baik berdasarkan chartnya?sebut tanggal/Bulan, bukan "Transit Jupiter".
     ` 
   },
 
   // --- BAGIAN 3: PENUTUP ---
   { 
     id: 'BAB8', 
-    title: 'Action Plan (Tanpa Mistik)', 
+    title: 'Saran Praktis (Action Plan)', 
     prompt: `
-    TUGAS: Rangkuman saran gaya hidup praktis.
+    TUGAS: Rangkuman saran gaya hidup.
     
     Instruksi:
-    Berikan tips yang bisa diterapkan besok pagi:
-    - Jam produktif (Golden Hour) dalam format jam (misal: 08:00 - 10:00).
-    - Gaya berpakaian atau warna yang meningkatkan wibawa (Psikologi Warna).
-    - Kebiasaan kecil yang harus dimulai dan **Kebiasaan buruk yang harus dibuang**.
-    - DILARANG menyarankan mantra/batu akik/jimat.
+    Berikan tips-tips praktis yang bisa langsung diterapkan besok:
+    - Waktu terbaik untuk bekerja.
+    - Warna atau gaya pakaian yang meningkatkan aura/percaya diri.
+    - Kebiasaan kecil yang harus dimulai.
     ` 
   },
   
@@ -205,10 +205,9 @@ const getSections = (dateContext: string, clientName: string) => [
     id: 'BAB_CLOSE', 
     title: 'Pesan Penutup', 
     prompt: `
-    TUGAS: Paragraf "Tamparan Realita" terakhir.
+    TUGAS: Paragraf motivasi terakhir.
     
-    Berikan kalimat penutup yang tegas. Ingatkan bahwa peta ini tidak berguna jika dia tidak bergerak. 
-    Tantang klien untuk membuktikan potensinya.
+    Berikan dorongan semangat agar klien percaya diri menghadapi masa depan. Singkat, padat, berkesan.
     ` 
   }
 ];
@@ -249,7 +248,7 @@ export const generateReport = async (
         onStatusUpdate(section.id === 'PREFACE' ? 'Menulis Surat Pembuka...' : `Menganalisis ${section.title}...`);
         
         const continuityPrompt = section.id === 'PREFACE' 
-          ? "TUGAS: Tulis surat pembuka yang menjelaskan metodologi Kosmografi Sidereal." 
+          ? "TUGAS: Tulis surat pembuka yang ramah dan profesional." 
           : `
           KONTEKS SEBELUMNYA (Agar nyambung):
           "...${lastContext}"
@@ -266,16 +265,13 @@ export const generateReport = async (
         
         ${section.prompt}
         
-        [DATA KOSMOGRAFI]:
+        [DATA ASTROLOGI]:
         ${data.rawText || "Analisis dari file chart terlampir."}
         
         REMINDER KHUSUS:
-        1. GUNAKAN BAHASA INDONESIA YANG LUGAS, JUJUR, DAN TAJAM.
-        2. BONGKAR KELEMAHAN TANPA RAGU.
-        3. LOKASI HARUS SPESIFIK (KOTA/NEGARA).
-        4. WAKTU HARUS SPESIFIK (TANGGAL/BULAN).
-        5. NO MANTRA/MISTIK.
-        6. JANGAN ULANGI INSTRUKSI PROMPT DALAM OUTPUT.
+        1. GUNAKAN BAHASA INDONESIA YANG LUGAS, JELAS, MUDAH DIMENGERTI.
+        2. HINDARI ISTILAH METAFORA YANG MEMBINGUNGKAN (JANGAN PAKAI 'ARCHETYPE', 'SABOTEUR', DLL).
+        3. JANGAN ULANGI INSTRUKSI PROMPT DALAM OUTPUT.
         `;
 
         const processedFiles: any[] = [];
