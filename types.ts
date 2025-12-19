@@ -1,3 +1,4 @@
+// types.ts
 
 export interface ClientData {
   id: string; // Unique ID for batch processing
@@ -35,6 +36,6 @@ export interface ReportState {
 export enum Step {
   INPUT = 'INPUT',
   GENERATING = 'GENERATING',
-  RESULT_LIST = 'RESULT_LIST', // New step: List of completed reports
-  RESULT_VIEW = 'RESULT_VIEW', // New step: Viewing specific report
+  RESULT_LIST = 'RESULT_LIST',
+  RESULT_VIEW = 'RESULT_VIEW',
 }
