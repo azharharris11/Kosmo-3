@@ -1,7 +1,7 @@
-
 import { GoogleGenAI } from "@google/genai";
 import { ClientData, UsageStats } from "../types";
 
+// --- KONFIGURASI HARGA & MODEL ---
 const PRICING = {
   'gemini-2.5-flash': { input: 0.30, output: 2.50 },
   'gemini-3-flash-preview': { input: 0.50, output: 3.00 },
@@ -9,7 +9,7 @@ const PRICING = {
 };
 
 const formatDate = (dateString: string) => {
-  if (!dateString) return "PERIODE INI";
+  if (!dateString) return "SAAT INI";
   const date = new Date(dateString + "-01"); 
   return date.toLocaleDateString('id-ID', { year: 'numeric', month: 'long' }).toUpperCase();
 };
@@ -19,14 +19,13 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 // --- SYSTEM PROMPT: RAW, PSYCHOLOGICAL, NO-BULLSHIT ---
 const NATALIE_SYSTEM_PROMPT = `
 Kamu adalah Natalie Lau, Astrolog Kosmografi & Profiler Psikologis untuk Ultra-High-Net-Worth Individuals.
-Gaya bicaramu: **"Tough Love", Provokatif, Tajam, dan Sedikit Gelap.** 
-Kamu bukan motivator, kamu adalah cermin yang memperlihatkan retakan di jiwa mereka.
+Gaya bicaramu: **"Tough Love", Provokatif, Tajam, dan Sedikit Gelap.** Kamu bukan motivator, kamu adalah cermin yang memperlihatkan retakan di jiwa mereka.
 
 ATURAN UTAMA (NEGATIVE CONSTRAINTS) - WAJIB PATUH:
-1. **DILARANG BASA-BASI**: HAPUS semua kalimat pengantar seperti "Berikut adalah tabel...", "Pada bab ini kita akan membahas...", "Mari kita lihat...", "Analisis saya menunjukkan...". LANGSUNG TULIS INTINYA.
+1. **DILARANG BASA-BASI**: HAPUS semua kalimat pengantar seperti "Berikut adalah tabel...", "Pada bab ini kita akan membahas...", "Mari kita lihat...". LANGSUNG TULIS INTINYA.
 2. **JANGAN ROBOTIK**: Jangan mengulang struktur kalimat. Gunakan pertanyaan retoris, sarkasme halus, dan metafora tajam.
 3. **KONTEKS KONTINU**: Anggap ini satu buku utuh. JANGAN menyapa "Halo" atau memperkenalkan diri lagi setelah Executive Summary.
-4. **FOKUS PADA "WHY" & "CONFLICT"**: Jangan cuma bilang planet ada di mana. Jelaskan KONFLIK BATIN apa yang timbul. Bahas ketakutan, obsesi, dan paradoks hidupnya.
+4. **FOKUS PADA "WHY" & "CONFLICT"**: Jangan cuma bilang planet ada di mana. Jelaskan KONFLIK BATIN apa yang timbul.
 5. **BAHASA MENTAH**: Gunakan istilah psikologis (Sabotase Diri, Paranoia, Topeng Sosial, Scarcity Mindset). Hindari bahasa korporat kaku.
 
 ATURAN VISUAL (STRICT):
@@ -35,131 +34,201 @@ ATURAN VISUAL (STRICT):
     - Wajib ada di awal bab (kecuali Exec Summary).
     - Maksimal 4 Kolom.
     - Isi sel harus **SINGKAT & PADAT** (Maks 5-7 kata).
-3. **NARASI**: Paragraf pendek, punchy, dan menohok.
+3. **SUB-BAB**: Gunakan Heading 3 (###) untuk memecah topik.
 `;
 
-// --- STRUKTUR BAB BARU: PSYCHOLOGICAL DEEP DIVE ---
+// --- STRUKTUR 7 BAB PREMIUM (EXTENDED OUTLINE) ---
 const getSections = (dateContext: string, clientName: string) => [
-  // --- HALAMAN 1: SURAT PERINGATAN (Executive Summary) ---
+  // --- HALAMAN 1: EXECUTIVE SUMMARY ---
   {
     id: 'EXEC_SUM',
-    title: 'Executive Summary',
+    title: 'Executive Summary: The Blueprint',
     prompt: `
     TUGAS: Tulis **EXECUTIVE SUMMARY** yang terasa seperti "Surat Peringatan Pribadi".
     
     1.  **Sapaan**: "Halo, ${clientName}." (Singkat).
     2.  **TABEL PILAR**: Rangkum "Big Three" (Sun, Moon, Rising) + Chart Ruler.
     3.  **THE HOOK**: Tembak langsung ke masalah terbesarnya.
-        - Jika ada banyak planet di satu zodiak (Stellium), bilang: "Kamu punya obsesi yang tidak sehat."
-        - Jika planetnya Exalted (Kuat), bilang: "Kekuatanmu adalah bebanmu."
+        - Validasi kekuatan supernya (Pujian Strategis).
+        - Bongkar kelemahan fatalnya (Kritik Tajam).
     4.  **Highlight Periode**: Satu kalimat tajam tentang Dasha/Periode saat ini. Apakah ini waktunya perang atau tiarap?
-    
-    Gunakan nada bicara seorang mentor yang lelah melihat muridnya melakukan kesalahan yang sama.
     `
   },
 
-  // --- BAGIAN 1: PSIKOLOGI & OBSESI ---
+  // --- BAB 1: MENTAL (Mind) ---
   { 
     id: 'BAB1', 
-    title: 'Bab 1: Cetak Biru Obsesi (The Psyche)', 
+    title: 'Bab 1: Analisis Psikologi & Mental (The Psyche)', 
     prompt: `
     [INTERNAL MONOLOGUE - CARI DATA INI]:
-    1. Cek **STELLIUM** (3+ planet di satu rumah/zodiak). Di mana energi menumpuk? 
-    2. Cek posisi **MOON** (Pikiran) & **MERCURY** (Logika). Apakah mereka damai atau perang (misal: Moon di Scorpio/Capricorn yang depresif, atau Mercury yang Combust/Terbakar)?
+    1. Cek **MOON** (Pikiran/Emosi) & **MERCURY** (Logika).
+    2. Cek **RAHU/KETU** (Obsesi & Ketakutan).
     
     [WRITING STEP]:
-    **DATA TABLE**: Kolom [Planet Mental | Posisi | Kondisi | Dampak Psikologis].
+    **DATA TABLE**: Kolom [Planet | Posisi | Dampak Psikologis].
     
-    **NARASI UTAMA**:
-    - Jika ada Stellium: "Mengapa otakmu tidak pernah bisa diam? Analisis 'Overthinking' sebagai senjata super sekaligus racun."
-    - Bahas tingkat kecemasan (Anxiety) dan Paranoia. Apakah dia tipe pemikir strategis atau pencemas kronis?
-    - Jangan memuji kecerdasannya. Kritik cara dia menggunakan kecerdasannya untuk menyiksa diri sendiri.
+    **SUB-BAB (Gunakan Heading ###):**
+    ### 1.1 Operating System Otakmu
+    Bagaimana caramu memproses data? Apakah overthinker (Moon Afflicted) atau jenius taktis (Mercury Strong)?
+    
+    ### 1.2 Lubang Hitam Emosional
+    Apa obsesi karmikmu (Rahu) dan di mana kamu merasa hampa (Ketu)? Bongkar ketakutan terbesarnya.
+    
+    ### 1.3 Mekanisme Pertahanan Diri
+    Bagaimana reaksimu saat tertekan? Apakah meledak atau implosif?
+    ` 
+  },
+
+  // --- BAB 2: FISIK (Body) ---
+  { 
+    id: 'BAB2', 
+    title: 'Bab 2: Vitalitas & Kesehatan Fisik', 
+    prompt: `
+    [INTERNAL MONOLOGUE - CARI DATA INI]:
+    1. Cek **House 6** (Penyakit Akut), **House 8** (Kronis).
+    2. Cek **SUN** (Vitalitas Dasar).
+    
+    [WRITING STEP]:
+    **DATA TABLE**: Kolom [Area Tubuh | Indikator Planet | Risiko].
+    
+    **SUB-BAB (Gunakan Heading ###):**
+    ### 2.1 Titik Lemah Biologis
+    Organ apa yang paling rawan "rusak" jika kamu stres? (Misal: Lambung, Jantung, atau Saraf).
+    
+    ### 2.2 Baterai Energimu
+    Apakah kamu tipe sprinter (Mars) atau marathon runner (Saturn)? Kapan energimu habis?
+    
+    ### 2.3 Prediksi Medis Jangka Panjang
+    Peringatan dini untuk penyakit di masa tua. Berikan saran preventif keras.
     ` 
   },
   
-  // --- BAGIAN 2: KUTUKAN KEKAYAAN ---
-  { 
-    id: 'BAB2', 
-    title: 'Bab 2: Paradoks Kekayaan & Ambisi', 
-    prompt: `
-    [INTERNAL MONOLOGUE - CARI DATA INI]:
-    1. Cek **SATURNUS** (Kerja Keras/Penundaan) & **MARS** (Agresi). 
-    2. Apakah ada yang **EXALTED** (Terlalu Kuat) atau **DEBILITATED** (Lemah)? 
-    3. Cek House 2 (Uang) & 11 (Gain).
-    
-    [WRITING STEP]:
-    **DATA TABLE**: Kolom [Indikator Materi | Kekuatan | Kelemahan Fatal].
-    
-    **NARASI UTAMA (THE BILLIONAIRE'S CURSE)**:
-    - Jika Saturnus Kuat/Exalted: Bahas "Scarcity Mindset". Mengapa dia merasa miskin padahal aset tumbuh? Kenapa dia pelit pada diri sendiri?
-    - Jika Mars Kuat: Bahas ambisi yang membakar. Apakah dia mengejar uang karena butuh, atau karena ingin membuktikan sesuatu pada orang tua/masa lalu?
-    - Tanyakan: "Apa harga yang kamu bayar untuk saldo rekeningmu?"
-    ` 
-  },
-
-  // --- BAGIAN 3: TOPENG PUBLIK VS REALITA ---
+  // --- BAB 3: UANG & KARIER (Wealth) ---
   { 
     id: 'BAB3', 
-    title: 'Bab 3: Topeng Publik vs Neraka Pribadi', 
+    title: 'Bab 3: Arsitektur Kekayaan & Karier', 
     prompt: `
     [INTERNAL MONOLOGUE - CARI DATA INI]:
-    1. Cek **RAHU** (Obsesi Duniawi) dan **KETU** (Masa Lalu/Spiritual).
-    2. Cek House 10 (Karier) vs House 4 (Rumah/Hati).
+    1. Cek **House 2** (Aset), **House 10** (Karier), **House 11** (Keuntungan).
+    2. Cek **KP Sub-Lord House 10** (Jalur Rezeki Spesifik).
     
     [WRITING STEP]:
-    **DATA TABLE**: Kolom [Sisi Kehidupan | Planet Penguasa | Realita].
+    **DATA TABLE**: Kolom [Sektor | Planet Penguasa | Status Aliran Uang].
     
-    **NARASI UTAMA**:
-    - Fokus pada **Rahu**: Di mana dia "Palsu"? Di mana dia ingin validasi orang lain? (Misal Rahu di H10 = Gila hormat).
-    - Fokus pada **Ketu**: Di mana dia merasa kosong/hampa? (Misal Ketu di H4 = Rumah terasa asing, tidak nyaman dengan keluarga).
-    - Judul Sub-bagian: "Harga Mahal Sebuah Reputasi". Mengapa kesuksesan karier justru membuatnya merasa terisolasi?
+    **SUB-BAB (Gunakan Heading ###):**
+    ### 3.1 Sumber Mata Air Rezeki
+    Dari mana uang paling mudah datang? (Bisnis, Gaji, Warisan, atau Investasi?). Jelaskan jalurnya.
+    
+    ### 3.2 Gaya Kerjamu vs Realita
+    Apakah kamu pemimpin (Sun/Mars) atau pelayan (Saturn)? Jangan memaksakan diri jadi CEO jika bakatmu adalah Specialist.
+    
+    ### 3.3 Potensi Puncak Karier
+    Kapan momentum emasmu akan datang? (Berdasarkan Dasha periode besar).
     ` 
   },
 
-  // --- BAGIAN 4: SABOTASE DIRI ---
+  // --- BAB 4: RISIKO & MUSUH (The Dark Side) ---
   { 
     id: 'BAB4', 
-    title: 'Bab 4: Sabotase Diri (The Combust Crisis)', 
+    title: 'Bab 4: Musuh, Hutang & Risiko', 
     prompt: `
     [INTERNAL MONOLOGUE - CARI DATA INI]:
-    1. Cari Planet yang **COMBUST** (Terbakar Matahari) atau **RETROGRADE**.
-    2. Cari Planet di House 6, 8, atau 12 (Dusthana Houses).
+    1. Cek **House 6** (Musuh/Hutang), **House 8** (Krisis/Transformasi).
+    2. Cek **House 12** (Pengeluaran/Musuh Tersembunyi).
     
     [WRITING STEP]:
-    **DATA TABLE**: Daftar "Musuh Dalam Selimut" (Planet bermasalah).
+    **DATA TABLE**: Kolom [Jenis Ancaman | Sumber Masalah | Level Bahaya].
     
-    **NARASI UTAMA**:
-    - **Combust**: Jelaskan fungsi mana yang "cacat" karena ego. 
-      - Mercury Combust: Bicara tajam menyakitkan tanpa sadar.
-      - Venus Combust: Cemburu buta, tidak bisa menikmati cinta.
-    - **House 12**: Apa ketakutan bawah sadar yang menahannya? Apa yang dia sembunyikan dari dunia?
-    - Judul Sub-bagian: "Bagaimana Kamu Menghancurkan Peluangmu Sendiri".
+    **SUB-BAB (Gunakan Heading ###):**
+    ### 4.1 Siapa Musuhmu?
+    Apakah musuhmu nyata (Kompetitor - H6) atau tersembunyi (Teman palsu/Skandal - H12)?
+    
+    ### 4.2 Jebakan Hutang & Kebangkrutan
+    Apakah ada indikasi kehilangan uang besar? Peringatkan tentang spekulasi.
+    
+    ### 4.3 Reputasi & Skandal
+    Apakah ada risiko aib terbongkar? (House 8). Bagaimana cara melindunginya?
     ` 
   },
 
-  // --- BAGIAN 5: ACTIONABLE FUTURE ---
+  // --- BAB 5: CINTA (Love) ---
   { 
     id: 'BAB5', 
-    title: 'Bab 5: Peringatan Dini & Strategi Perang', 
+    title: 'Bab 5: Dinamika Cinta & Rumah Tangga', 
     prompt: `
     [INTERNAL MONOLOGUE - CARI DATA INI]:
-    1. Cek DASHA (Periode) saat ini dan transisi ke Dasha berikutnya.
-    2. Cek Transit SATURNUS (Sade Sati?) atau JUPITER.
+    1. Cek **House 7** (Pasangan), **VENUS** (Romansa).
+    2. Cek **MARS** (Gairah/Konflik) & **Dosha** (Manglik).
     
     [WRITING STEP]:
-    **DATA TABLE**: Timeline 12 Bulan (Bulan | Peringatan | Strategi).
+    **DATA TABLE**: Kolom [Aspek Cinta | Planet | Kondisi].
     
-    **NARASI UTAMA**:
-    - Jangan berikan prediksi manis. Berikan "Warning".
-    - "Tahun depan bukan waktu untuk bermimpi. Ini waktu untuk bayar hutang karma."
-    - Berikan instruksi spesifik: Kapan harus tiarap, kapan harus menyerang.
+    **SUB-BAB (Gunakan Heading ###):**
+    ### 5.1 Profil Jodoh Takdir
+    Siapa yang akan melengkapimu (atau menghancurkanmu)? Jelaskan sifat pasangannya.
+    
+    ### 5.2 Bahasa Cinta & Red Flags
+    Apakah kamu posesif, dingin, atau bucin? Apa sifat toxic-mu dalam hubungan?
+    
+    ### 5.3 Potensi Krisis & Perpisahan
+    Apakah ada risiko perceraian atau LDR? (Cek House 7 Affliction).
     ` 
   },
 
-  // --- BAGIAN 6: PENUTUP ---
+  // --- BAB 6: LOKASI (Geography) ---
   { 
     id: 'BAB6', 
-    title: 'Bab 6: Ultimatum Terakhir', 
+    title: 'Bab 6: Geografi Keberuntungan', 
+    prompt: `
+    [INTERNAL MONOLOGUE - CARI DATA INI]:
+    1. Cek **House 3** (Perjalanan Pendek), **House 9** (Perjalanan Jauh).
+    2. Cek **House 12** (Luar Negeri).
+    
+    [WRITING STEP]:
+    **DATA TABLE**: Kolom [Lokasi | Potensi Sukses | Tantangan].
+    
+    **SUB-BAB (Gunakan Heading ###):**
+    ### 6.1 Energi Tempat Lahir
+    Apakah kamu cocok tinggal di kota kelahiranmu? Atau energimu macet di sana?
+    
+    ### 6.2 Potensi Merantau
+    Apakah rezekimu ada di seberang lautan? (House 9/12 Strong).
+    
+    ### 6.3 Arah Mata Angin
+    Ke arah mana kamu harus bergerak untuk mencari peluang terbaik? (Utara/Selatan/Barat/Timur).
+    ` 
+  },
+
+  // --- BAB 7: WAKTU (Timeline) ---
+  { 
+    id: 'BAB7', 
+    title: 'Bab 7: Masterplan & Timeline Strategis', 
+    prompt: `
+    [INTERNAL MONOLOGUE - CARI DATA INI]:
+    1. Cek **DASHA** (Periode Aktif) saat ini dan masa depan.
+    2. Cek **Ghatak/Bad Days** (Pantangan).
+    3. Cek **Remedies** (Solusi).
+    
+    [WRITING STEP]:
+    **DATA TABLE**: Timeline 12 Bulan (Bulan | Fokus | Aksi Wajib).
+    
+    **SUB-BAB (Gunakan Heading ###):**
+    ### 7.1 Tema Tahun Ini (${dateContext})
+    Kamu sedang di musim apa? Perang, Panen, atau Hibernasi?
+    
+    ### 7.2 Kalender Pantangan (Ghatak)
+    Hari apa atau bulan apa yang harus dihindari untuk keputusan besar?
+    
+    ### 7.3 Bio-Hacking (Remedies Logis)
+    Terjemahkan ritual mistis menjadi habit nyata.
+    (Contoh: "Puasa Senin" -> "Detoks Dopamin Hari Senin").
+    ` 
+  },
+
+  // --- PENUTUP ---
+  { 
+    id: 'BAB_CLOSE', 
+    title: 'Pesan Terakhir', 
     prompt: `
     TUGAS: Menutup sesi dengan satu paragraf filosofis tapi menampar.
     
@@ -204,7 +273,7 @@ export const generateReport = async (
 
     while (attempts < maxAttempts && !sectionSuccess) {
       try {
-        onStatusUpdate(section.id === 'EXEC_SUM' ? 'Menganalisis Pola Pikir...' : `Menulis ${section.title}...`);
+        onStatusUpdate(section.id === 'EXEC_SUM' ? 'Menganalisis DNA Kosmik...' : `Menulis ${section.title}...`);
         
         // --- CONTEXT CONSTRUCTION ---
         const continuityPrompt = section.id === 'EXEC_SUM' 
@@ -227,7 +296,7 @@ export const generateReport = async (
         ${section.prompt}
         
         [SUMBER DATA CHART KLIEN]:
-        Gunakan data berikut untuk mencari pola (Stellium, Exalted, Combust, dll):
+        Gunakan data astrologi mentah ini untuk analisis mendalam (Cari keyword: Planet, House, Dasha, Sub-Lord, Dosha):
         ${data.rawText || "Analisis berdasarkan file chart."}
         
         IMPORTANT REMINDER:
@@ -245,7 +314,7 @@ export const generateReport = async (
         const responseStream = await ai.models.generateContentStream({
           model: model,
           contents: { role: 'user', parts: [{ text: prompt }, ...processedFiles] },
-          config: { systemInstruction: NATALIE_SYSTEM_PROMPT, temperature: 0.7 } // Temp sedikit naik untuk kreativitas bahasa
+          config: { systemInstruction: NATALIE_SYSTEM_PROMPT, temperature: 0.7 } 
         });
 
         let sectionContent = "";
@@ -280,11 +349,10 @@ export const generateReport = async (
         let cleanText = sectionContent.trim();
         
         // --- FAILSAFE: PEMBERSIH SAPAAN & FILLER BERULANG ---
-        // Regex agresif untuk membuang intro robotik
         if (section.id !== 'EXEC_SUM') {
            cleanText = cleanText
-             .replace(/^(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/gim, "") // Sapaan
-             .replace(/^(Berikut adalah|Mari kita|Pada bab ini|Tabel di bawah|Selanjutnya kita|Dalam astrologi,).+?(\:|\.|\n)/gim, "") // Filler
+             .replace(/^(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/gim, "") 
+             .replace(/^(Berikut adalah|Mari kita|Pada bab ini|Tabel di bawah|Selanjutnya kita|Dalam astrologi,).+?(\:|\.|\n)/gim, "") 
              .trim();
         }
 
