@@ -51,6 +51,23 @@ const getSections = (dateContext: string, clientName: string) => [
     `
   },
 
+  // --- BAGIAN BARU: TABEL DATA TEKNIS (BUKTI) ---
+  {
+    id: 'TECH_DATA',
+    title: 'Data Teknis & Posisi Planet',
+    prompt: `
+    TUGAS KHUSUS: Ekstrak data teknis dari chart/input yang diberikan menjadi TABEL.
+    
+    Instruksi:
+    1. Buatlah **Markdown Table** yang merangkum posisi planet saat kelahiran.
+    2. Format Kolom: | Planet | Zodiak (Sign) | House (Rumah) | Nakshatra (Jika terbaca) |
+    3. Masukkan data untuk: Ascendant (Lagna), Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu, Ketu.
+    
+    Tujuan: Ini adalah bukti data teknis yang digunakan untuk analisis selanjutnya.
+    Hanya tampilkan TABEL saja tanpa narasi panjang.
+    `
+  },
+
   // --- BAGIAN 1: ANALISIS INTI ---
   {
     id: 'EXEC_SUM',
@@ -241,7 +258,9 @@ export const generateReport = async (
         // --- LOGIC GATE: FILTER KELUHAN (PER BAB) ---
         let dynamicConcernPrompt = "";
         
-        if (data.concerns && data.concerns.trim().length > 3) {
+        // Logic: Kita abaikan filter keluhan jika ini adalah bab tabel teknis (TECH_DATA)
+        // agar tabel tetap murni data tanpa terganggu keluhan.
+        if (data.concerns && data.concerns.trim().length > 3 && section.id !== 'TECH_DATA') {
            dynamicConcernPrompt = `
            --- FILTER RELEVANSI KELUHAN (CRITICAL INSTRUCTION) ---
            INFO KELUHAN KLIEN: "${data.concerns}"
@@ -309,11 +328,9 @@ export const generateReport = async (
 
             // --- STREAMING FIX: INJEKSI HEADER SECARA REALTIME ---
             const separator = accumulatedReport ? "\n\n<div class='page-break'></div>\n\n" : "";
-            const currentHeader = `## ${section.title}\n\n`; // Header Bab Saat Ini
+            const currentHeader = `## ${section.title}\n\n`; 
             
-            // Gabungkan: Laporan Lama + Separator + Header Baru + Isi Baru
             let displayContent = accumulatedReport + separator + currentHeader + cleanChunk;
-            
             onStream(displayContent);
           }
 
@@ -332,36 +349,4 @@ export const generateReport = async (
         let cleanText = sectionContent
              .replace(/^(\[TOPIK BAB INI\]|TUGAS|INSTRUKSI|KONTEKS|--- FILTER):.*$/gm, "")
              .replace(/Ini adalah AWAL LAPORAN/gi, "")
-             .replace(section.id === 'PREFACE' ? /xyz_never_match/ : /^(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/gim, "")
-             .trim();
-
-        if (accumulatedReport) accumulatedReport += "\n\n<div class='page-break'></div>\n\n"; 
-        
-        // --- FINAL SAVE FIX: PAKSA HEADER MASUK KE HASIL AKHIR ---
-        accumulatedReport += `## ${section.title}\n\n${cleanText}`;
-        
-        lastContext = cleanText.slice(-400).replace(/\n/g, " ");
-        sectionSuccess = true;
-
-      } catch (err) {
-        attempts++;
-        if (attempts >= maxAttempts) {
-          accumulatedReport += `\n\n*(Gagal memproses bab ini. Error: ${err})*`;
-        } else {
-          await wait(2000 * attempts);
-        }
-      }
-    }
-  }
-
-  return accumulatedReport;
-};
-
-const fileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve((reader.result as string).split(',')[1]);
-    reader.onerror = reject;
-  });
-};
+             .replace(section.id === 'PREFACE'
