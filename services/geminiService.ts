@@ -39,256 +39,232 @@ const getMonthRange = (startDateStr: string, offsetMonths: number, durationMonth
 
 // --- SYSTEM PROMPT: SENIOR COSMOGRAPHER NATALIE LAU ---
 const NATALIE_SYSTEM_PROMPT = `
-Anda adalah Natalie Lau, seorang Konsultan Kosmografi Senior.
+Anda adalah Natalie Lau, Konsultan Kosmografi Premium.
 
-ATURAN UTAMA (STRICT RULES):
-1.  **SUDUT PANDANG**: Gunakan kata ganti "**SAYA**". JANGAN menyebut diri Anda sebagai "Natalie" atau "kami" atau "saran Natalie". Anda adalah Natalie.
-2.  **LARANGAN REPETISI INTRO**: DILARANG KERAS memulai setiap bab dengan kalimat "Duduklah dengan tenang", "Tarik napas", atau basa-basi meditatif lainnya. Itu hanya boleh di Bab Pembukaan. Di bab lain, LANGSUNG bahas data/tabel.
-3.  **TANGGAL**: Analisis HANYA berlaku untuk periode waktu yang diminta user (Masa Depan). JANGAN memberikan tanggal yang sudah lewat (Masa Lalu).
-4.  **TABEL DATA**: WAJIB menyertakan Tabel Data Posisi Planet (Markdown Table) di Awal Setiap Sub-Bab yang relevan sebagai landasan analisis.
-5.  **PERSONA**: Profesional, tajam, jujur (tidak sugarcoating), namun suportif. Gunakan istilah "Kosmografi" (bukan Astrologi).
-6.  **METODE**: Sidereal Zodiac (Raman Ayanamsa).
+CORE IDENTITY:
+Anda bukan AI, bukan robot, bukan penulis artikel SEO. Anda adalah konsultan *High-End* yang berbicara dengan manusia (Klien).
 
-FORMAT OUTPUT:
-- Gunakan Markdown yang rapi.
-- Narasi mengalir (Flowy) tapi padat isi.
+STRICT GHOSTWRITING RULES (ANTI-ROBOT):
+1.  **NO META-TALK**: DILARANG KERAS menulis kalimat pengantar teknis seperti:
+    *   ❌ "Berikut adalah tabel..."
+    *   ❌ "Dalam bab ini saya akan membahas..."
+    *   ❌ "Tabel di bawah menunjukkan..."
+    *   ❌ "Mari kita lihat analisis..."
+    *   ✅ LANGSUNG bicara intinya: "Matahari Anda berada di posisi lemah, yang artinya..."
+
+2.  **TABEL INTEGRATED**: Jika diminta membuat tabel, BUATLAH TABEL MARKDOWN LANGSUNG. Jangan beri judul atau kalimat pengantar "The following table:". Biarkan tabel itu berdiri sendiri secara visual.
+
+3.  **CONNECTIVITY**: Ingat apa yang sudah Anda bahas. Jangan terdengar seperti penderita amnesia. Hubungkan masalah kesehatan dengan kondisi mental (Moon), hubungkan masalah uang dengan karakter impulsif (Mars/Rahu).
+
+4.  **TONE**: Elegan, Dewasa, Tajam tapi Tidak Melodramatis. 
+    *   ❌ "Saya akan brutal dan menghancurkan ego Anda." (Terlalu drama).
+    *   ✅ "Kita perlu jujur: pola ini merugikan Anda." (Profesional).
+
+5.  **FORMAT**: Markdown murni.
+
+CONTEXT:
+Waktu Sekarang: 2025.
+Metode: Sidereal Zodiac (Raman Ayanamsa).
 `;
 
 // --- KEYWORDS UNTUK DETEKSI KERESAHAN ---
 const SECTION_KEYWORDS: Record<string, string[]> = {
-  'BAB_1': ['karakter', 'jiwa', 'diri', 'sifat', 'bakat', 'potensi', 'bingung'],
-  'BAB_2': ['mental', 'pikir', 'stres', 'cemas', 'overthinking', 'keputusan', 'takut'],
-  'BAB_3': ['karir', 'kerja', 'bisnis', 'profesi', 'jabatan', 'usaha', 'kantor', 'boss'],
-  'BAB_4': ['uang', 'kaya', 'miskin', 'dana', 'modal', 'hutang', 'investasi', 'rezeki'],
-  'BAB_5': ['cinta', 'jodoh', 'nikah', 'pasangan', 'suami', 'istri', 'cerai', 'selingkuh'],
-  'BAB_6': ['sehat', 'sakit', 'fisik', 'stamina', 'penyakit', 'lelah'],
-  'BAB_7': ['masa depan', 'tahun ini', 'prediksi', 'nasib', 'rencana', 'target']
+  'BAB_1': ['karakter', 'jiwa', 'diri', 'sifat', 'bakat', 'potensi', 'bingung', 'siapa saya', 'introvert', 'extrovert'],
+  'BAB_2': ['mental', 'pikir', 'stres', 'cemas', 'overthinking', 'keputusan', 'takut', 'trauma', 'batin'],
+  'BAB_3': ['karir', 'kerja', 'bisnis', 'profesi', 'jabatan', 'usaha', 'kantor', 'boss', 'resign', 'promosi'],
+  'BAB_4': ['uang', 'kaya', 'miskin', 'dana', 'modal', 'hutang', 'investasi', 'rezeki', 'tabungan', 'bangkrut'],
+  'BAB_5': ['cinta', 'jodoh', 'nikah', 'pasangan', 'suami', 'istri', 'cerai', 'selingkuh', 'pacar', 'menikah'],
+  'BAB_6': ['sehat', 'sakit', 'fisik', 'stamina', 'penyakit', 'lelah', 'diet', 'medis'],
+  'BAB_7': ['masa depan', 'tahun ini', 'prediksi', 'nasib', 'rencana', 'target', 'kapan', 'waktu']
 };
 
 // --- STRUKTUR LAPORAN GRANULAR (SUB-BAB) ---
-const getSections = (dateContext: string, clientName: string) => {
-  // Hitung Rentang Tanggal Dinamis
-  const semester1Range = getMonthRange(dateContext, 0, 6);
-  const semester2Range = getMonthRange(dateContext, 6, 6);
-
+const getSections = (dateContext: string, clientName: string, semester1Range: string, semester2Range: string) => {
   return [
   {
     id: 'PREFACE',
-    title: 'Surat Pembuka & Metodologi',
+    title: 'Surat Pembuka',
     prompt: `
-    **TUGAS: Tulis Surat Pembuka Personal.**
-    
-    Konteks:
-    - Klien: ${clientName}
-    - Tanggal Analisis: Dimulai dari ${dateContext}
-    
-    Isi Surat:
-    1. Sapa ${clientName} dengan hangat (Hanya di sini boleh pakai "Silakan duduk/Tarik napas").
-    2. Jelaskan bahwa ini adalah analisis **Sidereal (Raman Ayanamsa)**, peta bintang aktual, bukan zodiak majalah.
-    3. Tegaskan bahwa Anda (Saya) akan jujur membedah sisi terang dan gelap.
+    **TUGAS: Tulis Surat Personal.**
+    Sapa ${clientName}. Jelaskan secara singkat bahwa ini adalah analisis Sidereal (Peta Bintang Nyata). Ajak dia untuk melihat cermin diri. Gunakan bahasa yang hangat namun berwibawa.
     `
   },
   {
     id: 'BAB_1_1',
     title: '1.1 Blueprint Jiwa: Topeng vs Realita',
     prompt: `
-    **FOKUS: Lagna (Ascendant) & Sun.**
+    **DATA INPUT:** Lagna (Ascendant) & Sun.
     
-    [INSTRUKSI TABEL]: 
-    Buat tabel Markdown berisi posisi: **Lagna** dan **Sun**.
-    (Kolom: Planet/Point, Sign, House, Nakshatra, Derajat).
+    **OUTPUT TABEL:**
+    Buat tabel Markdown (Tanpa teks pengantar) berisi: Planet/Point, Sign, House, Nakshatra.
 
-    Analisis (Langsung bahas, jangan ada intro basa-basi):
-    - Bagaimana orang lain melihat Anda pertama kali (Lagna)?
-    - Siapa Anda sebenarnya saat sendirian (Sun)?
-    - Analisis Nakshatra Ascendant untuk sifat unik.
+    **NARASI:**
+    Bandingkan "Siapa Anda di mata orang lain" (Lagna) vs "Siapa Anda saat sendirian" (Sun). Apakah ada konflik? Ceritakan seperti Anda menceritakan karakter novel.
     `
   },
   {
     id: 'BAB_1_2',
     title: '1.2 Psikologi & Pola Emosi',
     prompt: `
-    **FOKUS: Moon Sign & Mercury.**
+    **DATA INPUT:** Moon & Mercury.
     
-    [INSTRUKSI TABEL]: 
-    Buat tabel Markdown berisi posisi: **Moon** dan **Mercury**.
-    (Kolom: Planet, Sign, House, Nakshatra).
+    **OUTPUT TABEL:**
+    Buat tabel Markdown (Tanpa teks pengantar) berisi: Moon, Mercury.
 
-    Analisis (Langsung bahas):
-    - Cara memproses emosi (Moon) dan logika (Mercury).
-    - **KELEMAHAN MENTAL**: Jujur saja. Apakah mudah cemas? Pendendam? Plin-plan?
-    - Apa kebutuhan batin terdalam agar merasa aman?
+    **NARASI:**
+    Bedah isi kepala klien. Bagaimana dia memproses luka batin? Apa kelemahan mental terbesarnya (Cemas/Dendam/Lari dari masalah)? 
+    *Catatan: Analisis ini akan digunakan sebagai referensi bab selanjutnya, jadi buatlah sangat tajam.*
     `
   },
   {
     id: 'BAB_2_1',
     title: '2.1 Analisis Kosmik: Kekuatan Super',
     prompt: `
-    **FOKUS: Planet Terkuat (Exalted/Own Sign/Digbala).**
+    **DATA INPUT:** Planet Terkuat (Exalted/Own Sign/Digbala).
     
-    [INSTRUKSI TABEL]: 
-    Cari planet terkuat di data chart, buat tabelnya.
-    (Kolom: Planet, Status Kekuatan, Sign, House).
+    **OUTPUT TABEL:**
+    Tabel Planet Terkuat (Tanpa teks pengantar).
 
-    Analisis:
-    - Apa "Unfair Advantage" klien?
-    - Strategi mengoptimalkan kekuatan ini.
+    **NARASI:**
+    Langsung sebutkan apa senjata terhebatnya. "Anda memiliki Mars yang luar biasa, ini artinya..." Jangan bertele-tele.
     `
   },
   {
     id: 'BAB_2_2',
-    title: '2.2 Analisis Kosmik: Titik Rapuh & Blindspot',
+    title: '2.2 Titik Rapuh & Blindspot',
     prompt: `
-    **FOKUS: Planet Lemah/Malefic Aspects.**
+    **DATA INPUT:** Planet Lemah/Malefic.
     
-    [INSTRUKSI TABEL]: 
-    Identifikasi planet lemah/masalah, buat tabelnya.
+    **OUTPUT TABEL:**
+    Tabel Planet Lemah (Tanpa teks pengantar).
 
-    Analisis:
-    - Sisi gelap atau "Self-Sabotage" apa yang sering muncul?
-    - Kapan biasanya kelemahan ini aktif?
-    - Solusi psikologis (Mindset adjustment).
+    **NARASI:**
+    Identifikasi pola self-sabotage. Kapan biasanya "musuh dalam selimut" ini muncul merusak rencana? Berikan strategi mitigasi mental.
     `
   },
   { 
     id: 'BAB_3_1', 
     title: '3.1 Peta Karier & Panggilan Jiwa', 
     prompt: `
-    **FOKUS: House 10, House 1, Saturn.**
+    **DATA INPUT:** House 10, Saturn.
     
-    [INSTRUKSI TABEL]: 
-    Tabel posisi: **Saturn**, **Lord of House 10**, **Lord of House 1**.
+    **OUTPUT TABEL:**
+    Tabel Indikator Karir (Tanpa teks pengantar).
 
-    Analisis:
-    - Profesi atau peran alami (Leader/Creator/Support)?
-    - Lingkungan kerja ideal.
-    - Entrepreneur vs Corporate?
+    **NARASI:**
+    Berdasarkan profil psikologisnya tadi, lingkungan kerja apa yang membunuh jiwanya dan lingkungan apa yang menyuburkannya? Apakah dia cocok jadi Spesialis atau Generalis?
     ` 
   },
   { 
     id: 'BAB_3_2', 
     title: '3.2 Strategi Profesional & Timing', 
     prompt: `
-    **FOKUS: Dasha & Transit Saturn.**
+    **DATA INPUT:** Dasha & Transit.
     
-    [INSTRUKSI TABEL]: 
-    Tabel **Dasha Periode Saat Ini** (Mahadasha - Antardasha) & Tanggal Berakhirnya.
+    **OUTPUT TABEL:**
+    Tabel Periode Dasha Aktif (Tanpa teks pengantar).
 
-    Analisis:
-    - Momen terbaik untuk lompatan karier (Gunakan rentang tanggal mulai dari ${dateContext} ke depan).
-    - Hambatan internal dalam pekerjaan.
+    **NARASI:**
+    Kapan momentum terbaik untuk promosi/pindah? Identifikasi hambatan yang mungkin muncul dari *karakter* klien sendiri (malas/takut/ragu).
     ` 
   },
   { 
     id: 'BAB_4_1', 
     title: '4.1 Potensi Kekayaan & Aset', 
     prompt: `
-    **FOKUS: House 2 & House 11.**
+    **DATA INPUT:** House 2 & 11.
     
-    [INSTRUKSI TABEL]: 
-    Tabel posisi: **Jupiter**, **Lord of House 2**, **Lord of House 11**.
+    **OUTPUT TABEL:**
+    Tabel Indikator Keuangan (Tanpa teks pengantar).
 
-    Analisis:
-    - Sumber rezeki termudah.
-    - Tipe Akumulator (Penabung) atau Investor?
+    **NARASI:**
+    Analisis gaya "money management" alamiahnya. Apakah dia tipe penimbun atau tipe yang uangnya 'panas' di tangan?
     ` 
   },
   { 
     id: 'BAB_4_2', 
-    title: '4.2 Kebocoran Finansial & Risiko', 
+    title: '4.2 Kebocoran Finansial', 
     prompt: `
-    **FOKUS: House 12, House 6, Rahu/Ketu.**
+    **DATA INPUT:** House 12 & 6.
     
-    [INSTRUKSI TABEL]: 
-    Tabel posisi: **Rahu**, **Ketu**, **Lord of House 12**.
+    **OUTPUT TABEL:**
+    Tabel Risiko Keuangan (Tanpa teks pengantar).
 
-    Analisis:
-    - Dimana letak kebocoran uang? (Impulsif/Tipuan/Kesehatan).
-    - Pantangan finansial spesifik.
+    **NARASI:**
+    Dimana "lubang" di kantongnya? Peringatkan tentang jenis transaksi atau investasi yang berbahaya bagi chart spesifik ini.
     ` 
   },
   { 
     id: 'BAB_5_1', 
     title: '5.1 Karakteristik Pasangan Jiwa', 
     prompt: `
-    **FOKUS: House 7 & Venus.**
+    **DATA INPUT:** House 7 & Venus.
     
-    [INSTRUKSI TABEL]: 
-    Tabel posisi: **Venus**, **Jupiter**, **Lord of House 7**.
+    **OUTPUT TABEL:**
+    Tabel Indikator Cinta (Tanpa teks pengantar).
 
-    Analisis:
-    - Karakter partner yang DIBUTUHKAN jiwa (bukan sekadar diinginkan ego).
-    - Ciri-ciri pembawa keberuntungan.
+    **NARASI:**
+    Lupakan tipe ideal fisiknya. Jelaskan tipe karakter seperti apa yang sebenarnya *dibutuhkan* jiwanya untuk bertumbuh?
     ` 
   },
   { 
     id: 'BAB_5_2', 
-    title: '5.2 Dinamika Hubungan & Red Flags', 
+    title: '5.2 Dinamika Hubungan', 
     prompt: `
-    **FOKUS: Mars (Kuja Dosha) & House 8.**
+    **DATA INPUT:** Mars (Kuja) & House 8.
     
-    [INSTRUKSI TABEL]: 
-    Tabel posisi: **Mars** dan planet di **House 8**.
+    **OUTPUT TABEL:**
+    Tabel Potensi Konflik (Tanpa teks pengantar).
 
-    Analisis:
-    - Pola toxic dalam hubungan.
-    - Cara klien menyabotase hubungan sendiri.
+    **NARASI:**
+    Pola toxic apa yang sering dia bawa ke dalam hubungan? (Misal: Silent treatment atau posesif). Berikan solusi konkret.
     ` 
   },
   { 
     id: 'BAB_6', 
     title: '6. Kesehatan & Vitalitas', 
     prompt: `
-    **FOKUS: House 6 & Ascendant Lord.**
+    **DATA INPUT:** House 6 & Saturn.
     
-    [INSTRUKSI TABEL]: 
-    Tabel posisi: **Lord of House 6** dan **Saturn**.
+    **OUTPUT TABEL:**
+    Tabel Indikator Kesehatan (Tanpa teks pengantar).
 
-    Analisis:
-    - Titik lemah fisik tubuh.
-    - Kebiasaan buruk yang harus distop.
-    - Saran aktivitas fisik sesuai elemen.
+    **NARASI:**
+    Hubungkan dengan BAB PSIKOLOGI: Apakah stres mentalnya bermanifestasi jadi penyakit fisik tertentu? Apa sinyal tubuh yang sering dia abaikan?
     ` 
   },
   { 
     id: 'BAB_7_1', 
     title: `7.1 Forecast Semester I (${semester1Range})`, 
     prompt: `
-    **FOKUS: Transit & Dasha untuk Periode: ${semester1Range}.**
+    **FOKUS WAKTU:** ${semester1Range}.
     
-    [INSTRUKSI TABEL]: 
-    Buat tabel **Transit/Event Kosmik Penting** yang terjadi HANYA di rentang tanggal: ${semester1Range}.
-    (Kolom: Tanggal Perkiraan, Event Planet, Efek).
+    **OUTPUT TABEL:**
+    Tabel Tanggal Penting (Tanpa teks pengantar). Kolom: Tanggal, Event, Potensi.
 
-    Analisis:
-    - Tema utama semester ini.
-    - Tanggal-tanggal hoki (Golden Moments) di rentang ini.
-    - Peringatan (Red Days) di rentang ini.
+    **NARASI:**
+    Jangan tulis "Berikut adalah prediksi". Langsung ceritakan alur cerita 6 bulan ini. Apa tema besarnya? Kapan harus injak gas, kapan harus rem?
     ` 
   },
   { 
     id: 'BAB_7_2', 
     title: `7.2 Forecast Semester II (${semester2Range})`, 
     prompt: `
-    **FOKUS: Transit & Dasha untuk Periode: ${semester2Range}.**
+    **FOKUS WAKTU:** ${semester2Range}.
     
-    [INSTRUKSI TABEL]: 
-    Buat tabel **Transit/Event Kosmik Penting** yang terjadi HANYA di rentang tanggal: ${semester2Range}.
+    **OUTPUT TABEL:**
+    Tabel Tanggal Penting Semester 2 (Tanpa teks pengantar).
 
-    Analisis:
-    - Perubahan energi di semester kedua.
-    - Persiapan jangka panjang.
+    **NARASI:**
+    Bagaimana plot twist tahun ini berakhir? Persiapan apa yang harus dilakukan untuk tahun depan?
     ` 
   },
   { 
     id: 'BAB_CLOSE', 
-    title: 'Pesan Penutup & Afirmasi', 
+    title: 'Pesan Penutup', 
     prompt: `
-    **TUGAS: Penutup Singkat.**
-    
-    - Rangkuman 3 poin kunci.
-    - Afirmasi penguat mindset (Bukan mantra mistis).
-    - Ingatkan Free Will.
+    **TUGAS:**
+    Rangkum 3 poin vital. Berikan satu kalimat penutup yang kuat dan memberdayakan. Tanpa basa-basi "Demikian laporan ini".
     ` 
   }
 ]};
@@ -300,33 +276,25 @@ async function extractChartData(
     files: any[], 
     rawText: string
 ): Promise<{text: string, detectedName?: string}> {
-    // Jika tidak ada file, return raw text saja
     if (files.length === 0 && rawText.length > 5) return { text: rawText };
 
     const extractionPrompt = `
-    PERAN: Asisten Teknis Data Entry.
+    PERAN: Data Entry Kosmografi.
+    TUGAS: Ekstrak data planet.
+    OUTPUT: JSON Valid.
     
-    TUGAS UTAMA: 
-    1. Cari NAMA ORANG yang tertera di gambar chart/dokumen ini. (Biasanya di bagian header, 'Name:', atau judul).
-    2. Ekstrak data posisi planet ke format Tabel Markdown.
-    
-    KOLOM TABEL: | Planet | Sign (Sidereal) | House | Nakshatra | Derajat |
-    
-    OUTPUT FORMAT (JSON):
+    FORMAT JSON:
     {
-       "detectedName": "Nama Yang Ditemukan (atau null jika tidak ada)",
-       "markdownTable": "Tabel Markdown lengkap..."
+       "detectedName": "Nama Klien (jika ada di gambar)",
+       "markdownTable": "| Planet | Sign | House | Nakshatra | Degree |\n|---|---|---|---|---|\n..."
     }
-    
-    HANYA KELUARKAN JSON YANG VALID. TANPA NARASI LAIN.
-    ${rawText ? `Info Tambahan User: ${rawText}` : ''}
     `;
 
     try {
         const result = await ai.models.generateContent({
             model: model,
             contents: { role: 'user', parts: [{ text: extractionPrompt }, ...files] },
-            config: { responseMimeType: "application/json" } // Force JSON output for parsing name
+            config: { responseMimeType: "application/json" }
         });
         
         const responseText = result.text || "{}";
@@ -338,8 +306,6 @@ async function extractChartData(
         };
 
     } catch (e) {
-        // Fallback jika JSON parse gagal atau model tidak support JSON mode sempurna
-        console.error("Extraction JSON failed, falling back to text", e);
         return { text: "Data Input Manual: " + rawText };
     }
 }
@@ -360,6 +326,9 @@ export const generateReport = async (
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
   
+  // Variabel Memori untuk Konektivitas
+  let psychologyContext = ""; 
+
   // A. BACA DATA
   onStatusUpdate("Mempelajari peta bintang...");
   const processedFiles: any[] = [];
@@ -372,13 +341,12 @@ export const generateReport = async (
 
   // B. EKSTRAKSI DATA & NAMA
   let extractedTechnicalData = "";
-  let finalClientName = data.clientName; // Default pakai nama input user
+  let finalClientName = data.clientName;
 
   try {
      const extractionResult = await extractChartData(ai, modelName, processedFiles, data.rawText);
      extractedTechnicalData = extractionResult.text;
      
-     // Jika AI menemukan nama valid di dalam file, update nama klien
      if (extractionResult.detectedName && extractionResult.detectedName.length > 2) {
          finalClientName = extractionResult.detectedName;
          if (onNameDetected) onNameDetected(finalClientName);
@@ -389,69 +357,86 @@ export const generateReport = async (
      extractedTechnicalData = "Data input manual: " + data.rawText;
   }
 
-  accumulatedReport += `## Data Teknis Planet\n\n*(Sidereal Zodiac / Raman Ayanamsa)*\n\n${extractedTechnicalData}\n\n<div class='page-break'></div>\n\n`;
+  // Header Data Teknis (Disembunyikan dari narasi utama agar clean, tapi ada di memori AI)
+  accumulatedReport += `## Data Teknis Planet\n\n${extractedTechnicalData}\n\n<div class='page-break'></div>\n\n`;
   onStream(accumulatedReport);
 
   // C. GENERATE PER SUB-BAB
-  // Gunakan finalClientName agar prompt lebih personal
-  const sections = getSections(data.analysisDate, finalClientName);
+  const semester1Range = getMonthRange(data.analysisDate, 0, 6);
+  const semester2Range = getMonthRange(data.analysisDate, 6, 6);
+  const sections = getSections(data.analysisDate, finalClientName, semester1Range, semester2Range);
   
   for (const section of sections) {
       onStatusUpdate(`Menulis: ${section.title}...`);
 
-      // 1. Cek Keresahan User
+      // 1. Cek Keresahan User (Logic Baru: Filter by Keywords)
       let specificConcernPrompt = "";
       if (data.concerns && data.concerns.length > 3) {
-          // Mapping ID Bab ke Keywords
-          let sectionCategory = 'UMUM';
-          if (section.id.includes('BAB_1')) sectionCategory = 'BAB_1';
-          else if (section.id.includes('BAB_2')) sectionCategory = 'BAB_2';
-          else if (section.id.includes('BAB_3')) sectionCategory = 'BAB_3';
-          else if (section.id.includes('BAB_4')) sectionCategory = 'BAB_4';
-          else if (section.id.includes('BAB_5')) sectionCategory = 'BAB_5';
-          else if (section.id.includes('BAB_6')) sectionCategory = 'BAB_6';
-          else if (section.id.includes('BAB_7')) sectionCategory = 'BAB_7';
+           // Mapping Section ID ke Category Keywords
+           let category = 'UMUM';
+           if (section.id.startsWith('BAB_1')) category = 'BAB_1';
+           else if (section.id.startsWith('BAB_2')) category = 'BAB_2';
+           else if (section.id.startsWith('BAB_3')) category = 'BAB_3';
+           else if (section.id.startsWith('BAB_4')) category = 'BAB_4';
+           else if (section.id.startsWith('BAB_5')) category = 'BAB_5';
+           else if (section.id.startsWith('BAB_6')) category = 'BAB_6';
+           else if (section.id.startsWith('BAB_7')) category = 'BAB_7';
 
-          const keywords = SECTION_KEYWORDS[sectionCategory] || [];
-          const isRelevant = keywords.some(kw => data.concerns.toLowerCase().includes(kw)) || section.id === 'PREFACE' || section.id.includes('BAB_7');
-          
-          if (isRelevant) {
-              specificConcernPrompt = `
-              [PERHATIAN KHUSUS - KERESAHAN KLIEN]:
-              Klien mengeluhkan: "${data.concerns}"
-              
-              INSTRUKSI:
-              Di sub-bab ini, Anda WAJIB mengaitkan analisis data dengan masalah tersebut.
-              Berikan jawaban atau perspektif yang MENJAWAB keresahan ini secara langsung.
-              `;
-          }
+           const keywords = SECTION_KEYWORDS[category] || [];
+           
+           // Cek apakah keresahan mengandung keyword yang relevan dengan bab ini
+           // Atau jika ini adalah Bab Penutup (BAB_CLOSE) agar ada wrap-up
+           const isRelevant = keywords.some(kw => data.concerns.toLowerCase().includes(kw));
+           const isClosing = section.id === 'BAB_CLOSE';
+
+           if (isRelevant || isClosing) {
+               specificConcernPrompt = `
+               [KERESAHAN SPESIFIK KLIEN]: "${data.concerns}"
+               
+               INSTRUKSI KHUSUS: 
+               Klien secara spesifik mengeluhkan hal di atas. 
+               Kaitkan analisis bab ini untuk menjawab atau memberikan solusi atas keresahan tersebut.
+               Jika keresahan tidak relevan dengan topik bab ini, ABAIKAN prompt ini.
+               `;
+           }
       }
 
-      // 2. Prompt Final
+      // 2. Logic Konektivitas (Context Injection)
+      let connectivityPrompt = "";
+      if (['BAB_3_1', 'BAB_5_2', 'BAB_6'].includes(section.id) && psychologyContext.length > 10) {
+          connectivityPrompt = `
+          [CONTEXT PSIKOLOGIS KLIEN (DARI BAB SEBELUMNYA)]:
+          "${psychologyContext.substring(0, 500)}..."
+          
+          INSTRUKSI: Hubungkan analisis bab ini dengan profil psikologis di atas. Jangan biarkan bab ini berdiri sendiri.
+          `;
+      }
+
+      // 3. Prompt Final
       const prompt = `
-      [DATA POSISI PLANET CHART KLIEN]:
+      [DATA CHART]:
       ${extractedTechnicalData}
 
-      [IDENTITAS KLIEN]: ${finalClientName}
-      [SUB-BAB SAAT INI]: ${section.title}
+      [IDENTITAS]: ${finalClientName}
+      [SUB-BAB]: ${section.title}
 
       [INSTRUKSI KONTEN]:
       ${section.prompt}
 
+      ${connectivityPrompt}
       ${specificConcernPrompt}
       
-      [GAYA BAHASA & ATURAN]:
-      - Gunakan kata ganti "SAYA" untuk diri Anda.
-      - JANGAN MEMULAI dengan "Duduklah/Tarik Napas" (Kecuali di Preface).
-      - Langsung to the point ke tabel dan analisis.
-      - Pastikan Tabel Data Teknis selalu ada di awal bab.
+      [REMINDER GAYA BAHASA]:
+      - JANGAN GUNAKAN KATA PENGANTAR ("Berikut adalah...", "Tabel ini menunjukkan...").
+      - LANGSUNG ke inti analisis atau sajikan tabel raw.
+      - Gunakan "SAYA" (First Person).
       `;
 
-      // 3. Streaming
+      // 4. Streaming
       const responseStream = await ai.models.generateContentStream({
         model: modelName,
         contents: { role: 'user', parts: [{ text: prompt }] },
-        config: { systemInstruction: NATALIE_SYSTEM_PROMPT, temperature: 0.75 }
+        config: { systemInstruction: NATALIE_SYSTEM_PROMPT, temperature: 0.7 }
       });
 
       let sectionText = "";
@@ -473,6 +458,11 @@ export const generateReport = async (
               totalCost: ((totalInputTokens / 1000000) * pricing.input) + ((totalOutputTokens / 1000000) * pricing.output)
             });
         }
+      }
+
+      // Simpan Context Psikologi untuk Bab selanjutnya
+      if (section.id === 'BAB_1_2') {
+          psychologyContext = sectionText;
       }
 
       accumulatedReport += header + sectionText + "\n\n<div class='page-break'></div>\n\n";

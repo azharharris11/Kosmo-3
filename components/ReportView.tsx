@@ -36,10 +36,19 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
     ? new Date(analysisDate + "-01").toLocaleDateString('id-ID', { year: 'numeric', month: 'long' }).toUpperCase()
     : "DESEMBER 2025";
 
+  // --- CLEANING AI ARTIFACTS ---
+  // Menghapus kalimat sampah seperti "The following table:", "Here is the analysis:", dsb.
   const cleanContent = content
     .replace(/\|\|/g, '|')
     .replace(/\$([a-zA-Z0-9-]+)\$/g, '**$1**')
-    .replace(/<div class='page-break'><\/div>/g, '---PAGE_BREAK---');
+    .replace(/<div class='page-break'><\/div>/g, '---PAGE_BREAK---')
+    // Hapus kalimat pengantar tabel (Case insensitive, match lines ending with :)
+    .replace(/^(The following table|Table below|Berikut adalah tabel|Data teknis|Tabel berikut).*?[:]\s*$/gim, '')
+    // Hapus baris yang hanya berisi "---" berlebihan jika bukan pemisah tabel
+    .replace(/^\s*[-_]{3,}\s*$/gm, (match) => match.includes('|') ? match : '') 
+    // Hapus "Analisis:" header yang sering muncul otomatis
+    .replace(/^Analisis:\s*/gim, '')
+    .replace(/^Narasi:\s*/gim, '');
 
   return (
     <div className={`w-full ${isLive ? 'h-full' : 'min-h-screen pb-20'} bg-midnight/40`}>
@@ -117,6 +126,9 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                    if (props.children && String(props.children).includes('---PAGE_BREAK---')) {
                      return <div className="page-break-before-always h-0" />;
                    }
+                   // Sembunyikan paragraf kosong sisa cleaning
+                   if (!props.children || props.children === '') return null;
+                   
                    return <p className="mb-8 text-charcoal/90 text-[18px] print:text-[14pt] leading-[1.8] font-light" {...props} />;
                 },
                 strong: ({node, ...props}) => <strong className="text-midnight font-bold" {...props} />,
@@ -139,16 +151,16 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                   </div>
                 ),
                 table: ({node, ...props}) => (
-                  <div className="my-12 overflow-hidden border border-gold/20 rounded-sm shadow-sm page-break-inside-avoid bg-white">
-                    <table className="w-full border-collapse text-left" {...props} />
+                  <div className="my-10 w-full overflow-hidden border border-gold/30 rounded-lg shadow-sm page-break-inside-avoid bg-white">
+                    <table className="w-full border-collapse text-left table-auto" {...props} />
                   </div>
                 ),
                 thead: ({node, ...props}) => <thead className="bg-midnight text-gold" {...props} />,
                 th: ({node, ...props}) => (
-                  <th className="p-4 font-cinzel text-[12px] tracking-[0.2em] uppercase border-b border-gold/30" {...props} />
+                  <th className="p-4 font-cinzel text-[10px] md:text-[12px] tracking-[0.1em] uppercase border-b border-gold/30 text-center" {...props} />
                 ),
                 td: ({node, ...props}) => (
-                  <td className="p-4 border-b border-gold/10 font-serif text-[16px] print:text-[12pt] text-charcoal/80 align-top" {...props} />
+                  <td className="p-4 border-b border-gold/10 font-serif text-[14px] md:text-[16px] print:text-[12pt] text-charcoal/80 align-middle text-center" {...props} />
                 ),
               }}
             >
