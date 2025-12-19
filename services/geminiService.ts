@@ -16,205 +16,158 @@ const formatDate = (dateString: string) => {
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// --- SYSTEM PROMPT: BOOK MODE & STRICT TABLES ---
+// --- SYSTEM PROMPT: RAW, PSYCHOLOGICAL, NO-BULLSHIT ---
 const NATALIE_SYSTEM_PROMPT = `
-Kamu adalah Natalie Lau, Astrolog Kosmografi (Strategic Astrologer) untuk klien High-Net-Worth.
-Gaya bicaramu: Elegan, Hangat, tapi Sangat Taktis dan Logis (bukan mistis).
+Kamu adalah Natalie Lau, Astrolog Kosmografi & Profiler Psikologis untuk Ultra-High-Net-Worth Individuals.
+Gaya bicaramu: **"Tough Love", Provokatif, Tajam, dan Sedikit Gelap.** 
+Kamu bukan motivator, kamu adalah cermin yang memperlihatkan retakan di jiwa mereka.
 
-KONTEKS PENULISAN:
-Kamu sedang menulis **SATU DOKUMEN LAPORAN UTUH** (Buku Analisis), bukan kumpulan email/chat terpisah.
-Kecuali di Bab Executive Summary, **DILARANG** menyapa "Halo", "Dear", atau memperkenalkan diri lagi. Anggap setiap prompt baru adalah **halaman selanjutnya** dari buku yang sama.
+ATURAN UTAMA (NEGATIVE CONSTRAINTS) - WAJIB PATUH:
+1. **DILARANG BASA-BASI**: HAPUS semua kalimat pengantar seperti "Berikut adalah tabel...", "Pada bab ini kita akan membahas...", "Mari kita lihat...", "Analisis saya menunjukkan...". LANGSUNG TULIS INTINYA.
+2. **JANGAN ROBOTIK**: Jangan mengulang struktur kalimat. Gunakan pertanyaan retoris, sarkasme halus, dan metafora tajam.
+3. **KONTEKS KONTINU**: Anggap ini satu buku utuh. JANGAN menyapa "Halo" atau memperkenalkan diri lagi setelah Executive Summary.
+4. **FOKUS PADA "WHY" & "CONFLICT"**: Jangan cuma bilang planet ada di mana. Jelaskan KONFLIK BATIN apa yang timbul. Bahas ketakutan, obsesi, dan paradoks hidupnya.
+5. **BAHASA MENTAH**: Gunakan istilah psikologis (Sabotase Diri, Paranoia, Topeng Sosial, Scarcity Mindset). Hindari bahasa korporat kaku.
 
 ATURAN VISUAL (STRICT):
-1.  **JUDUL BAB**: Baris pertama output WAJIB: \`## Nama Bab\`.
-2.  **TABEL DATA**:
-    - Wajib ada di awal setiap bab setelah judul.
-    - **Maksimal 4 Kolom**.
-    - Isi sel harus **SINGKAT & PADAT** (Maks 5-7 kata). Jangan menulis paragraf di dalam sel tabel agar rapi saat dicetak PDF.
-3.  **NARASI**: Gunakan paragraf story-telling. Gunakan sudut pandang "Saya" (Natalie) ke "Kamu" (Klien).
+1. **JUDUL BAB**: Baris pertama output WAJIB: \`## Judul Bab Provokatif\`.
+2. **TABEL DATA**:
+    - Wajib ada di awal bab (kecuali Exec Summary).
+    - Maksimal 4 Kolom.
+    - Isi sel harus **SINGKAT & PADAT** (Maks 5-7 kata).
+3. **NARASI**: Paragraf pendek, punchy, dan menohok.
 `;
 
-// --- STRUKTUR BAB BARU DENGAN INTERNAL MONOLOGUE ---
+// --- STRUKTUR BAB BARU: PSYCHOLOGICAL DEEP DIVE ---
 const getSections = (dateContext: string, clientName: string) => [
-  // --- HALAMAN 1: CHEAT SHEET (SURAT PEMBUKA) ---
+  // --- HALAMAN 1: SURAT PERINGATAN (Executive Summary) ---
   {
     id: 'EXEC_SUM',
     title: 'Executive Summary',
     prompt: `
-    TUGAS: Tulis **PEMBUKA SURAT** (Executive Summary).
+    TUGAS: Tulis **EXECUTIVE SUMMARY** yang terasa seperti "Surat Peringatan Pribadi".
     
-    1.  **Sapaan**: "Halo, ${clientName}." (Berikan intro hangat & berkelas).
-    2.  **TABEL PILAR**: Rangkum "Big Three" (Sun, Moon, Rising) dan Chart Ruler.
-    3.  **Analisis Situasi**: Jelaskan dia sedang di periode Dasha apa secara singkat.
-    4.  **Highlight**: Satu paragraf tentang "Tema Besar" hidupnya saat ini.
+    1.  **Sapaan**: "Halo, ${clientName}." (Singkat).
+    2.  **TABEL PILAR**: Rangkum "Big Three" (Sun, Moon, Rising) + Chart Ruler.
+    3.  **THE HOOK**: Tembak langsung ke masalah terbesarnya.
+        - Jika ada banyak planet di satu zodiak (Stellium), bilang: "Kamu punya obsesi yang tidak sehat."
+        - Jika planetnya Exalted (Kuat), bilang: "Kekuatanmu adalah bebanmu."
+    4.  **Highlight Periode**: Satu kalimat tajam tentang Dasha/Periode saat ini. Apakah ini waktunya perang atau tiarap?
     
-    Akhiri dengan kalimat transisi mengajak masuk ke bedah detail di halaman berikutnya.`
+    Gunakan nada bicara seorang mentor yang lelah melihat muridnya melakukan kesalahan yang sama.
+    `
   },
 
-  // --- BAGIAN 1: THE CORE ---
+  // --- BAGIAN 1: PSIKOLOGI & OBSESI ---
   { 
     id: 'BAB1', 
-    title: 'Bab 1: Cetak Biru Jiwa (The Blueprint)', 
+    title: 'Bab 1: Cetak Biru Obsesi (The Psyche)', 
     prompt: `
-    [INTERNAL STEP - JANGAN DITULIS]:
-    1. Cari data Ascendant (Lagna) dan Planet Penguasa Lagna (Chart Ruler).
-    2. Abaikan data planet lain untuk saat ini.
+    [INTERNAL MONOLOGUE - CARI DATA INI]:
+    1. Cek **STELLIUM** (3+ planet di satu rumah/zodiak). Di mana energi menumpuk? 
+    2. Cek posisi **MOON** (Pikiran) & **MERCURY** (Logika). Apakah mereka damai atau perang (misal: Moon di Scorpio/Capricorn yang depresif, atau Mercury yang Combust/Terbakar)?
     
     [WRITING STEP]:
-    **DATA TABLE**: Kolom [Parameter | Posisi/Sign | Makna Inti]. Isi untuk Ascendant & Chart Ruler saja.
+    **DATA TABLE**: Kolom [Planet Mental | Posisi | Kondisi | Dampak Psikologis].
     
-    **NARASI**:
-    Jelaskan "Casing Luar" (Ascendant) vs "Pengemudi" (Chart Ruler). Apakah mereka sinkron atau konflik? Ini menentukan seberapa mulus hidupnya berjalan.` 
+    **NARASI UTAMA**:
+    - Jika ada Stellium: "Mengapa otakmu tidak pernah bisa diam? Analisis 'Overthinking' sebagai senjata super sekaligus racun."
+    - Bahas tingkat kecemasan (Anxiety) dan Paranoia. Apakah dia tipe pemikir strategis atau pencemas kronis?
+    - Jangan memuji kecerdasannya. Kritik cara dia menggunakan kecerdasannya untuk menyiksa diri sendiri.
+    ` 
   },
+  
+  // --- BAGIAN 2: KUTUKAN KEKAYAAN ---
   { 
     id: 'BAB2', 
-    title: 'Bab 2: Kebenaran Tersembunyi (Deep Dive)', 
+    title: 'Bab 2: Paradoks Kekayaan & Ambisi', 
     prompt: `
-    [INTERNAL STEP - JANGAN DITULIS]:
-    1. Cari data NAKSHATRA (Bintang) dari Moon dan Lagna.
-    2. Identifikasi simbol hewan/alam dari Nakshatra tersebut.
+    [INTERNAL MONOLOGUE - CARI DATA INI]:
+    1. Cek **SATURNUS** (Kerja Keras/Penundaan) & **MARS** (Agresi). 
+    2. Apakah ada yang **EXALTED** (Terlalu Kuat) atau **DEBILITATED** (Lemah)? 
+    3. Cek House 2 (Uang) & 11 (Gain).
     
     [WRITING STEP]:
-    **DATA TABLE**: Kolom [Planet | Nakshatra | Simbol | Sifat Dasar].
+    **DATA TABLE**: Kolom [Indikator Materi | Kekuatan | Kelemahan Fatal].
     
-    **NARASI**:
-    Fokus bedah "Operating System" bawah sadarnya. Apa insting hewaniahnya berdasarkan simbol Nakshatra Moon? (Misal: Kuda yang bebas, atau Ular yang strategis?).` 
+    **NARASI UTAMA (THE BILLIONAIRE'S CURSE)**:
+    - Jika Saturnus Kuat/Exalted: Bahas "Scarcity Mindset". Mengapa dia merasa miskin padahal aset tumbuh? Kenapa dia pelit pada diri sendiri?
+    - Jika Mars Kuat: Bahas ambisi yang membakar. Apakah dia mengejar uang karena butuh, atau karena ingin membuktikan sesuatu pada orang tua/masa lalu?
+    - Tanyakan: "Apa harga yang kamu bayar untuk saldo rekeningmu?"
+    ` 
   },
+
+  // --- BAGIAN 3: TOPENG PUBLIK VS REALITA ---
   { 
     id: 'BAB3', 
-    title: 'Bab 3: Konflik Hati & Logika', 
+    title: 'Bab 3: Topeng Publik vs Neraka Pribadi', 
     prompt: `
-    [INTERNAL STEP - JANGAN DITULIS]:
-    1. Bandingkan posisi Sun (Jiwa/Ego) vs Moon (Pikiran/Emosi).
-    2. Cek jarak antar keduanya (Yoga).
+    [INTERNAL MONOLOGUE - CARI DATA INI]:
+    1. Cek **RAHU** (Obsesi Duniawi) dan **KETU** (Masa Lalu/Spiritual).
+    2. Cek House 10 (Karier) vs House 4 (Rumah/Hati).
     
     [WRITING STEP]:
-    **DATA TABLE**: Perbandingan Sun vs Moon.
+    **DATA TABLE**: Kolom [Sisi Kehidupan | Planet Penguasa | Realita].
     
-    **NARASI**:
-    Analisis friksi internal. Apakah ambisinya (Sun) didukung oleh ketenangan batinnya (Moon), atau dia sering menyabotase diri sendiri?` 
+    **NARASI UTAMA**:
+    - Fokus pada **Rahu**: Di mana dia "Palsu"? Di mana dia ingin validasi orang lain? (Misal Rahu di H10 = Gila hormat).
+    - Fokus pada **Ketu**: Di mana dia merasa kosong/hampa? (Misal Ketu di H4 = Rumah terasa asing, tidak nyaman dengan keluarga).
+    - Judul Sub-bagian: "Harga Mahal Sebuah Reputasi". Mengapa kesuksesan karier justru membuatnya merasa terisolasi?
+    ` 
   },
 
-  // --- BAGIAN 2: WEALTH & CAREER ---
+  // --- BAGIAN 4: SABOTASE DIRI ---
   { 
     id: 'BAB4', 
-    title: 'Bab 4: Arsitektur Kekayaan', 
+    title: 'Bab 4: Sabotase Diri (The Combust Crisis)', 
     prompt: `
-    [INTERNAL STEP - JANGAN DITULIS]:
-    1. Fokus HANYA pada House 2 (Aset), House 11 (Cashflow), dan Jupiter.
-    2. JANGAN bahas kesehatan atau asmara di sini.
+    [INTERNAL MONOLOGUE - CARI DATA INI]:
+    1. Cari Planet yang **COMBUST** (Terbakar Matahari) atau **RETROGRADE**.
+    2. Cari Planet di House 6, 8, atau 12 (Dusthana Houses).
     
     [WRITING STEP]:
-    **DATA TABLE**: Indikator Kekayaan. Kolom [Indikator | Kondisi | Potensi].
+    **DATA TABLE**: Daftar "Musuh Dalam Selimut" (Planet bermasalah).
     
-    **NARASI**:
-    Dari mana uang datang paling deras? Apakah dari kerja rutin, bisnis spekulatif, atau warisan? Analisis aliran rezekinya secara logis.` 
+    **NARASI UTAMA**:
+    - **Combust**: Jelaskan fungsi mana yang "cacat" karena ego. 
+      - Mercury Combust: Bicara tajam menyakitkan tanpa sadar.
+      - Venus Combust: Cemburu buta, tidak bisa menikmati cinta.
+    - **House 12**: Apa ketakutan bawah sadar yang menahannya? Apa yang dia sembunyikan dari dunia?
+    - Judul Sub-bagian: "Bagaimana Kamu Menghancurkan Peluangmu Sendiri".
+    ` 
   },
+
+  // --- BAGIAN 5: ACTIONABLE FUTURE ---
   { 
     id: 'BAB5', 
-    title: 'Bab 5: Karier & Medan Kompetisi', 
+    title: 'Bab 5: Peringatan Dini & Strategi Perang', 
     prompt: `
-    [INTERNAL STEP - JANGAN DITULIS]:
-    1. Fokus HANYA pada House 10 (Karier), House 6 (Kompetisi/Musuh), dan Saturnus.
+    [INTERNAL MONOLOGUE - CARI DATA INI]:
+    1. Cek DASHA (Periode) saat ini dan transisi ke Dasha berikutnya.
+    2. Cek Transit SATURNUS (Sade Sati?) atau JUPITER.
     
     [WRITING STEP]:
-    **DATA TABLE**: Peta Karir.
+    **DATA TABLE**: Timeline 12 Bulan (Bulan | Peringatan | Strategi).
     
-    **NARASI**:
-    Apakah dia tipe CEO, Spesialis, atau Pedagang? Bagaimana gaya dia menghadapi kompetitor atau politik kantor (House 6)?` 
+    **NARASI UTAMA**:
+    - Jangan berikan prediksi manis. Berikan "Warning".
+    - "Tahun depan bukan waktu untuk bermimpi. Ini waktu untuk bayar hutang karma."
+    - Berikan instruksi spesifik: Kapan harus tiarap, kapan harus menyerang.
+    ` 
   },
 
-  // --- BAGIAN 3: RELATIONSHIP ---
+  // --- BAGIAN 6: PENUTUP ---
   { 
     id: 'BAB6', 
-    title: 'Bab 6: Kesehatan & Vitalitas', 
+    title: 'Bab 6: Ultimatum Terakhir', 
     prompt: `
-    [INTERNAL STEP - JANGAN DITULIS]:
-    1. Fokus HANYA pada House 6 (Penyakit), House 8 (Kronis), dan Sun (Vitalitas).
+    TUGAS: Menutup sesi dengan satu paragraf filosofis tapi menampar.
     
-    [WRITING STEP]:
-    **DATA TABLE**: Indikator Fisik.
+    Ingatkan dia: Bintang hanyalah peta penjara. Dia bisa keluar jika dia sadar (conscious) akan pola-pola di atas.
+    Tantang dia untuk berhenti menjadi korban nasibnya sendiri.
     
-    **NARASI**:
-    (Nada sedikit medis/preventif). Apa titik lemah tubuhnya? Beri warning jika ada indikasi peradangan atau kelelahan adrenal.` 
-  },
-  { 
-    id: 'BAB7', 
-    title: 'Bab 7: Realita Pernikahan', 
-    prompt: `
-    [INTERNAL STEP - JANGAN DITULIS]:
-    1. Fokus HANYA pada House 7, Venus (untuk Pria), Jupiter (untuk Wanita), dan Darakaraka.
-    
-    [WRITING STEP]:
-    **DATA TABLE**: Profil Pasangan.
-    
-    **NARASI**:
-    Deskripsikan karakter jodohnya secara realistis. Apakah pernikahannya tipe "Partnership in Crime" atau "Traditional Duty"?` 
-  },
-
-  // --- BAGIAN 4: HIDDEN FORCES ---
-  { 
-    id: 'BAB8', 
-    title: 'Bab 8: Ketakutan & Transformasi', 
-    prompt: `
-    [INTERNAL STEP - JANGAN DITULIS]:
-    1. Fokus pada House 8 (Transformasi) dan House 12 (Bawah Sadar/Kehilangan).
-    
-    [WRITING STEP]:
-    **DATA TABLE**: Zona Gelap.
-    
-    **NARASI**:
-    Apa yang membuat dia susah tidur (House 12)? Apa ketakutan irasional yang sering menahannya maju?` 
-  },
-  { 
-    id: 'BAB9', 
-    title: 'Bab 9: Garis Karma (Rahu Ketu)', 
-    prompt: `
-    [INTERNAL STEP - JANGAN DITULIS]:
-    1. Cari posisi Rahu (North Node) dan Ketu (South Node).
-    
-    [WRITING STEP]:
-    **DATA TABLE**: Axis Karma.
-    
-    **NARASI**:
-    Jelaskan perjalanan jiwa: Zona nyaman apa yang harus ditinggalkan (Ketu) dan obsesi baru apa yang harus dikejar (Rahu) di hidup ini?` 
-  },
-
-  // --- BAGIAN 5: ACTIONABLE ---
-  { 
-    id: 'BAB10', 
-    title: 'Bab 10: Kalender Taktis (Transit)', 
-    prompt: `
-    [INTERNAL STEP - JANGAN DITULIS]:
-    1. Analisis transit planet besar (Saturn/Jupiter/Rahu) untuk 12 bulan ke depan dari ${dateContext}.
-    
-    [WRITING STEP]:
-    **DATA TABLE**: Roadmap 12 Bulan. Kolom [Bulan | Fokus Utama | Status (Green/Yellow/Red)].
-    
-    **NARASI**:
-    Jelaskan strategi tahunan. Kapan harus gas pol, kapan harus rem (retrogade).` 
-  },
-  { 
-    id: 'BAB11', 
-    title: 'Bab 11: Resep Perbaikan (Remedies)', 
-    prompt: `
-    [INTERNAL STEP - JANGAN DITULIS]:
-    1. Identifikasi planet terlemah atau "Badak" (bermasalah).
-    
-    [WRITING STEP]:
-    **DATA TABLE**: Action Plan. Kolom [Masalah | Solusi Fisik/Lifestyle | Solusi Mindset].
-    
-    **NARASI**:
-    Berikan solusi praktis (Bio-hacking, kebiasaan, warna, gemstone). Hindari solusi klenik murni, fokus ke perubahan habit.` 
-  },
-  { 
-    id: 'BAB12', 
-    title: 'Bab 12: Penutup', 
-    prompt: `
-    TUGAS: Menutup sesi konsultasi ini.
-    
-    Tulis pesan penutup yang emosional, memberdayakan, dan filosofis. Ingatkan bahwa bintang hanya peta, dia adalah nahkodanya. 
-    Tanda tangan sebagai "Natalie Lau".` 
+    Salam penutup: "Natalie Lau."
+    ` 
   }
 ];
 
@@ -232,18 +185,17 @@ export const generateReport = async (
   let accumulatedReport = "";
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
-  let rollingSummary = ""; 
   
   // CONTEXT CHAINING: Menyimpan akhir paragraf bab sebelumnya
   let lastContext = ""; 
 
-  let currentClientName = data.clientName || "Sahabat";
+  let currentClientName = data.clientName || "Klien";
 
   const sections = getSections(formatDate(data.analysisDate), currentClientName);
   
   const concernContext = data.concerns && data.concerns.trim().length > 3
-    ? `[KONTEKS KHUSUS]: Klien curhat tentang: "${data.concerns}". Pastikan analisis menjawab kegelisahan ini.`
-    : `[KONTEKS]: Berikan pembacaan umum yang mendalam dan strategis.`;
+    ? `[TARGET ANALISIS]: Klien mengeluh: "${data.concerns}". Gunakan ini sebagai bukti kelemahan mereka di Bab terkait.`
+    : `[TARGET ANALISIS]: Bongkar psikologi terdalamnya.`;
 
   for (const section of sections) {
     let attempts = 0;
@@ -252,36 +204,36 @@ export const generateReport = async (
 
     while (attempts < maxAttempts && !sectionSuccess) {
       try {
-        onStatusUpdate(section.id === 'EXEC_SUM' ? 'Menulis Surat Pembuka...' : `Menulis ${section.title}...`);
+        onStatusUpdate(section.id === 'EXEC_SUM' ? 'Menganalisis Pola Pikir...' : `Menulis ${section.title}...`);
         
         // --- CONTEXT CONSTRUCTION ---
-        // Kita "menipu" AI agar merasa dia sedang melanjutkan kalimat yang terputus.
         const continuityPrompt = section.id === 'EXEC_SUM' 
           ? "Ini adalah AWAL DOKUMEN."
           : `
-          KONTEKS SEBELUMNYA (Sambungkan alur dari sini):
+          KONTEKS SEBELUMNYA (Sambungkan alur emosi dari sini):
           "...${lastContext}"
           
-          INSTRUKSI: Lanjutkan penulisan langsung masuk ke bab baru (${section.title}). 
+          INSTRUKSI: Lanjutkan penulisan langsung masuk ke ${section.title}. 
           JANGAN MEMBUAT PEMBUKAAN BARU. JANGAN MENYAPA LAGI.
           `;
 
         const prompt = `
         ${continuityPrompt}
         
-        [BAGIAN SAAT INI]: ${section.title}
+        [JUDUL BAB SAAT INI]: ${section.title}
         
         ${concernContext}
         
         ${section.prompt}
         
         [SUMBER DATA CHART KLIEN]:
-        Gunakan data berikut (Filter hanya yang relevan dengan instruksi di atas):
+        Gunakan data berikut untuk mencari pola (Stellium, Exalted, Combust, dll):
         ${data.rawText || "Analisis berdasarkan file chart."}
         
         IMPORTANT REMINDER:
-        - Output Markdown Table di awal bab.
-        - Tabel harus rapi, sel jangan terlalu panjang.
+        - Output Markdown Table rapi di awal bab.
+        - HAPUS SEMUA KALIMAT PENGANTAR (FILLER).
+        - Fokus pada konflik batin, ketakutan, dan obsesi.
         `;
 
         const processedFiles: any[] = [];
@@ -290,31 +242,27 @@ export const generateReport = async (
           processedFiles.push({ inlineData: { mimeType: file.type, data: base64Data } });
         }
 
-        // Tag summary untuk internal memory AI (opsional, tapi membantu untuk rolling summary jangka panjang)
-        const chainTag = `\n\n[[SUMMARY: (Simpan poin krusial untuk bab selanjutnya)]]`;
-
         const responseStream = await ai.models.generateContentStream({
           model: model,
-          contents: { role: 'user', parts: [{ text: prompt + chainTag }, ...processedFiles] },
-          config: { systemInstruction: NATALIE_SYSTEM_PROMPT, temperature: 0.6 } // Temp diturunkan sedikit agar lebih patuh struktur
+          contents: { role: 'user', parts: [{ text: prompt }, ...processedFiles] },
+          config: { systemInstruction: NATALIE_SYSTEM_PROMPT, temperature: 0.7 } // Temp sedikit naik untuk kreativitas bahasa
         });
 
         let sectionContent = "";
-        const nameRegex = /\[\[NAME:\s*(.*?)\]\]/i;
-        const summaryRegex = /\[\[SUMMARY:\s*(.*?)\]\]/is;
-
+        
         for await (const chunk of responseStream) {
           const text = chunk.text;
           if (text) {
             sectionContent += text;
-            if (section.id === 'BAB1') {
-              const nameMatch = sectionContent.match(nameRegex);
-              if (nameMatch && onNameDetected) onNameDetected(nameMatch[1].trim());
-            }
             
             // Real-time display cleaning
             let displayContent = (accumulatedReport ? accumulatedReport + "\n\n" : "") + sectionContent;
-            displayContent = displayContent.replace(nameRegex, "").replace(summaryRegex, "").trim();
+            
+            // Hapus sapaan berulang secara real-time di UI juga
+            if (section.id !== 'EXEC_SUM') {
+               displayContent = displayContent.replace(/(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/gim, "");
+            }
+            
             onStream(displayContent);
           }
 
@@ -329,24 +277,21 @@ export const generateReport = async (
           }
         }
 
-        const summaryMatch = sectionContent.match(summaryRegex);
-        if (summaryMatch) rollingSummary = summaryMatch[1].trim();
-
-        let cleanText = sectionContent.replace(nameRegex, "").replace(summaryRegex, "").trim();
+        let cleanText = sectionContent.trim();
         
-        // --- FAILSAFE: PEMBERSIH SAPAAN BERULANG ---
-        // Jika AI bandel menulis "Halo/Dear" di bab lanjutan, hapus paksa.
+        // --- FAILSAFE: PEMBERSIH SAPAAN & FILLER BERULANG ---
+        // Regex agresif untuk membuang intro robotik
         if (section.id !== 'EXEC_SUM') {
-           cleanText = cleanText.replace(/^(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/im, "");
-           cleanText = cleanText.trim();
+           cleanText = cleanText
+             .replace(/^(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/gim, "") // Sapaan
+             .replace(/^(Berikut adalah|Mari kita|Pada bab ini|Tabel di bawah|Selanjutnya kita|Dalam astrologi,).+?(\:|\.|\n)/gim, "") // Filler
+             .trim();
         }
 
-        if (accumulatedReport) accumulatedReport += "\n\n"; 
+        if (accumulatedReport) accumulatedReport += "\n\n<div class='page-break'></div>\n\n"; 
         accumulatedReport += cleanText;
         
         // --- CONTEXT CAPTURE ---
-        // Ambil 500 karakter terakhir dari bab ini untuk jadi context bab selanjutnya
-        // Ini kunci agar AI tidak "Amnesia"
         lastContext = cleanText.slice(-600).replace(/\n/g, " ");
 
         sectionSuccess = true;
@@ -354,7 +299,7 @@ export const generateReport = async (
       } catch (err) {
         attempts++;
         if (attempts >= maxAttempts) {
-          accumulatedReport += `\n\n*(Gagal memproses bab ini setelah ${maxAttempts} percobaan...)*`;
+          accumulatedReport += `\n\n*(Gagal memproses bab ini. Error: ${err})*`;
         } else {
           await wait(2000 * attempts);
         }
