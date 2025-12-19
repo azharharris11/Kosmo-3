@@ -1,4 +1,3 @@
-
 import { GoogleGenAI } from "@google/genai";
 import { ClientData, UsageStats } from "../types";
 
@@ -46,7 +45,7 @@ const getSections = (dateContext: string, clientName: string) => [
     - Jelaskan bahwa analisis ini bertujuan membedah potensi dan hambatan mereka secara objektif menggunakan data astrologi.
     - Tekankan bahwa astrologi adalah peta cuaca, tapi klienlah nakhodanya. Hasil akhir tetap di tangan usaha mereka.
     Terminologi: Mengganti "Astrologi" menjadi "Kosmografi".
-Disclaimer Awal: Menambahkan penjelasan tentang perbedaan sistem Sidereal (Raman Ayanamsa) vs Western (Tropical) di surat pengantar.
+    Disclaimer Awal: Menambahkan penjelasan tentang perbedaan sistem Sidereal (Raman Ayanamsa) vs Western (Tropical) di surat pengantar.
 
     Gaya: Profesional, Ramah, Membumi.
     `
@@ -132,7 +131,6 @@ Disclaimer Awal: Menambahkan penjelasan tentang perbedaan sistem Sidereal (Raman
     - kapan dan dimana jodohnya dengan detail
     - Pola buruk apa yang sering dia ulangi dalam hubungan? (Misal: terlalu dominan, terlalu pasrah, salah pilih orang?)
     - Saran untuk memperbaiki kualitas hubungannya.
-    - 
     ` 
   },
   { 
@@ -231,12 +229,17 @@ export const generateReport = async (
   let currentClientName = data.clientName || "Klien";
   const sections = getSections(formatDate(data.analysisDate), currentClientName);
   
+  // --- LOGIC GATE PERBAIKAN: HANYA BAHAS JIKA RELEVAN ---
   const concernContext = data.concerns && data.concerns.trim().length > 3
     ? `
-    [FOKUS MASALAH KLIEN]: "${data.concerns}"
-    INSTRUKSI: Pastikan analisis ini menjawab kegelisahan tersebut secara langsung dan solutif.
+    [INFO KELUHAN KLIEN]: "${data.concerns}"
+    
+    ATURAN INTEGRASI KELUHAN (PENTING):
+    1. Cek apakah keluhan di atas **RELEVAN** dengan [TOPIK BAB INI].
+    2. **JIKA RELEVAN**: Jadikan keluhan ini fokus utama analisis di bab ini. Berikan solusi spesifik.
+    3. **JIKA TIDAK RELEVAN** (Misal: Keluhan 'Karir' di bab 'Cinta'): **ABAIKAN** keluhan ini sepenuhnya. Fokuslah murni pada topik bab tanpa memaksakan sambungan ke keluhan.
     `
-    : `[NO SPECIFIC CONCERN]: Lakukan analisis menyeluruh.`;
+    : ""; 
 
   for (const section of sections) {
     let attempts = 0;
