@@ -37,16 +37,12 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
     : "DESEMBER 2025";
 
   // --- CLEANING AI ARTIFACTS ---
-  // Menghapus kalimat sampah seperti "The following table:", "Here is the analysis:", dsb.
   const cleanContent = content
     .replace(/\|\|/g, '|')
     .replace(/\$([a-zA-Z0-9-]+)\$/g, '**$1**')
-    .replace(/<div class='page-break'><\/div>/g, '---PAGE_BREAK---')
-    // Hapus kalimat pengantar tabel (Case insensitive, match lines ending with :)
+    .replace(/<div class='page-break'><\/div>/g, '') // Hapus string page break lama jika ada
     .replace(/^(The following table|Table below|Berikut adalah tabel|Data teknis|Tabel berikut).*?[:]\s*$/gim, '')
-    // Hapus baris yang hanya berisi "---" berlebihan jika bukan pemisah tabel
     .replace(/^\s*[-_]{3,}\s*$/gm, (match) => match.includes('|') ? match : '') 
-    // Hapus "Analisis:" header yang sering muncul otomatis
     .replace(/^Analisis:\s*/gim, '')
     .replace(/^Narasi:\s*/gim, '');
 
@@ -115,20 +111,14 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                   </div>
                 ),
                 h2: ({node, ...props}) => (
-                  <div className="page-break-before-always break-after-avoid mt-24 mb-10">
-                    <h2 className="font-cinzel text-4xl md:text-5xl text-midnight font-black tracking-wider uppercase border-b-4 border-black/10 pb-6 mb-8 leading-tight" {...props} />
-                  </div>
+                  // H2 akan memicu page break melalui CSS @media print
+                  <h2 className="font-cinzel text-4xl md:text-5xl text-midnight font-black tracking-wider uppercase border-b-4 border-black/10 pb-6 mb-8 leading-tight mt-24 page-break-before-always break-after-avoid" {...props} />
                 ),
                 h3: ({node, ...props}) => (
-                  <h3 className="font-cinzel text-2xl font-bold text-midnight mt-12 mb-6 uppercase tracking-wide border-l-4 border-gold pl-4" {...props} />
+                  <h3 className="font-cinzel text-2xl font-bold text-midnight mt-12 mb-6 uppercase tracking-wide border-l-4 border-gold pl-4 break-after-avoid" {...props} />
                 ),
                 p: ({node, ...props}) => {
-                   if (props.children && String(props.children).includes('---PAGE_BREAK---')) {
-                     return <div className="page-break-before-always h-0" />;
-                   }
-                   // Sembunyikan paragraf kosong sisa cleaning
                    if (!props.children || props.children === '') return null;
-                   
                    return <p className="mb-8 text-charcoal/90 text-[18px] print:text-[14pt] leading-[1.8] font-light" {...props} />;
                 },
                 strong: ({node, ...props}) => <strong className="text-midnight font-bold" {...props} />,

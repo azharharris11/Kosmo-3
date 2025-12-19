@@ -357,8 +357,8 @@ export const generateReport = async (
      extractedTechnicalData = "Data input manual: " + data.rawText;
   }
 
-  // Header Data Teknis (Disembunyikan dari narasi utama agar clean, tapi ada di memori AI)
-  accumulatedReport += `## Data Teknis Planet\n\n${extractedTechnicalData}\n\n<div class='page-break'></div>\n\n`;
+  // Header Data Teknis - REMOVE PAGE BREAK
+  accumulatedReport += `## Data Teknis Planet\n\n${extractedTechnicalData}\n\n`;
   onStream(accumulatedReport);
 
   // C. GENERATE PER SUB-BAB
@@ -372,7 +372,6 @@ export const generateReport = async (
       // 1. Cek Keresahan User (Logic Baru: Filter by Keywords)
       let specificConcernPrompt = "";
       if (data.concerns && data.concerns.length > 3) {
-           // Mapping Section ID ke Category Keywords
            let category = 'UMUM';
            if (section.id.startsWith('BAB_1')) category = 'BAB_1';
            else if (section.id.startsWith('BAB_2')) category = 'BAB_2';
@@ -383,20 +382,13 @@ export const generateReport = async (
            else if (section.id.startsWith('BAB_7')) category = 'BAB_7';
 
            const keywords = SECTION_KEYWORDS[category] || [];
-           
-           // Cek apakah keresahan mengandung keyword yang relevan dengan bab ini
-           // Atau jika ini adalah Bab Penutup (BAB_CLOSE) agar ada wrap-up
            const isRelevant = keywords.some(kw => data.concerns.toLowerCase().includes(kw));
            const isClosing = section.id === 'BAB_CLOSE';
 
            if (isRelevant || isClosing) {
                specificConcernPrompt = `
                [KERESAHAN SPESIFIK KLIEN]: "${data.concerns}"
-               
-               INSTRUKSI KHUSUS: 
-               Klien secara spesifik mengeluhkan hal di atas. 
-               Kaitkan analisis bab ini untuk menjawab atau memberikan solusi atas keresahan tersebut.
-               Jika keresahan tidak relevan dengan topik bab ini, ABAIKAN prompt ini.
+               INSTRUKSI KHUSUS: Kaitkan analisis bab ini dengan keresahan tersebut.
                `;
            }
       }
@@ -405,31 +397,24 @@ export const generateReport = async (
       let connectivityPrompt = "";
       if (['BAB_3_1', 'BAB_5_2', 'BAB_6'].includes(section.id) && psychologyContext.length > 10) {
           connectivityPrompt = `
-          [CONTEXT PSIKOLOGIS KLIEN (DARI BAB SEBELUMNYA)]:
-          "${psychologyContext.substring(0, 500)}..."
-          
-          INSTRUKSI: Hubungkan analisis bab ini dengan profil psikologis di atas. Jangan biarkan bab ini berdiri sendiri.
+          [CONTEXT PSIKOLOGIS KLIEN]: "${psychologyContext.substring(0, 500)}..."
+          INSTRUKSI: Hubungkan analisis bab ini dengan profil psikologis di atas.
           `;
       }
 
       // 3. Prompt Final
       const prompt = `
-      [DATA CHART]:
-      ${extractedTechnicalData}
-
+      [DATA CHART]: ${extractedTechnicalData}
       [IDENTITAS]: ${finalClientName}
       [SUB-BAB]: ${section.title}
-
-      [INSTRUKSI KONTEN]:
-      ${section.prompt}
-
+      [INSTRUKSI KONTEN]: ${section.prompt}
       ${connectivityPrompt}
       ${specificConcernPrompt}
       
       [REMINDER GAYA BAHASA]:
-      - JANGAN GUNAKAN KATA PENGANTAR ("Berikut adalah...", "Tabel ini menunjukkan...").
-      - LANGSUNG ke inti analisis atau sajikan tabel raw.
-      - Gunakan "SAYA" (First Person).
+      - JANGAN GUNAKAN KATA PENGANTAR.
+      - LANGSUNG ke inti analisis.
+      - Gunakan "SAYA".
       `;
 
       // 4. Streaming
@@ -460,12 +445,13 @@ export const generateReport = async (
         }
       }
 
-      // Simpan Context Psikologi untuk Bab selanjutnya
       if (section.id === 'BAB_1_2') {
           psychologyContext = sectionText;
       }
 
-      accumulatedReport += header + sectionText + "\n\n<div class='page-break'></div>\n\n";
+      // REMOVED: "\n\n<div class='page-break'></div>\n\n"
+      // Biarkan H2 di bab berikutnya yang menangani page break secara CSS jika diperlukan.
+      accumulatedReport += header + sectionText + "\n\n";
   }
 
   return accumulatedReport;
