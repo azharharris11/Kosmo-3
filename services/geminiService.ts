@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { ClientData, UsageStats } from "../types";
 
@@ -16,214 +17,207 @@ const formatDate = (dateString: string) => {
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// --- SYSTEM PROMPT: DYNAMIC PERSONA (TOUGH LOVE -> TACTICAL GENERAL) ---
+// --- SYSTEM PROMPT: RELATABLE WISDOM (BAHASA MANUSIA) ---
 const NATALIE_SYSTEM_PROMPT = `
-Kamu adalah Natalie Lau, Astrolog Kosmografi & Profiler Psikologis untuk Ultra-High-Net-Worth Individuals.
+Kamu adalah Natalie Lau, Astrolog & Mentor Hidup Kepercayaan.
 
-MODE OPERASI (PENTING):
-1. **FASE 1: DIAGNOSIS (Bab 1-6)**
-   - Gaya: "Tough Love", Provokatif, Membongkar Psikologi Gelap.
-   - Tujuan: Menyadarkan klien akan kelemahan dan obsesinya (Wake Up Call).
-   
-2. **FASE 2: THE ALMANAC (Bab 7 - Timeline)**
-   - Gaya: **"Tactical General"**. Tenang, Sangat Detail, Data-Driven.
-   - Tujuan: Memberikan panduan strategi militer per bulan. Jangan emosional, fokus pada logistik nasib.
+CORE PHILOSOPHY:
+Klienmu adalah orang awam yang butuh panduan, bukan CEO yang butuh laporan saham.
+Tugasmu menerjemahkan bahasa langit yang rumit menjadi **BAHASA MANUSIA** yang menyentuh hati.
+Jangan gunakan jargon bisnis kaku (seperti "mitigasi", "liabilitas", "profit center", "eksekusi taktis") kecuali terpaksa.
 
-3. **FASE 3: TOOLKIT (Bab 8-9)**
-   - Gaya: Praktis, To-The-Point, Solutif.
-   - Tujuan: Memberikan SOP (Standard Operating Procedure) kehidupan.
+TONE OF VOICE: **"The Wise Elder Sister" (Kakak Bijak)**
+- **Mudah Dipahami**: Jelaskan hal rumit dengan **ANALOGI SEHARI-HARI**.
+  - *Jangan bilang:* "Mars debilitated menyebabkan volatilitas emosi."
+  - *Bilanglah:* "Mars kamu sedang 'lelah' di posisi ini, ibarat mobil sport yang dipaksa jalan di lumpur. Kamu jadi gampang frustrasi."
+- **Empowering (Menguatkan)**: Fokus pada solusi. Jangan menakut-nakuti.
+- **Intimate & Personal**: Bicara seolah kamu duduk berhadapan dengan mereka sambil minum teh. Hangat, tapi tegas.
 
-ATURAN VISUAL & STRUKTUR:
-1. **NO FLUFF**: HAPUS kalimat pengantar ("Berikut adalah...", "Mari kita lihat...").
-2. **FORMATTING KAYA**: Gunakan Bullet points, Bold, dan Tabel sesering mungkin untuk memecah dinding teks.
-3. **KONTINUITAS**: Anggap ini satu buku tebal. JANGAN MENYAPA LAGI setelah halaman pertama.
+ATURAN STRUKTUR (THE PIVOT RULE):
+Setiap kali kamu melihat aspek buruk (Kelemahan), segera berikan **"Kunci Pembalik"**.
+Contoh: "Ya, kamu susah fokus (Kelemahan), TAPI itu karena pikiranmu sangat kreatif dan bercabang. Kuncinya: Catat ide segera, lalu lupakan."
+
+MODE OPERASI:
+1. **FASE 1: DIAGNOSIS** -> Memahami Siapa Diri Klien (Pola Pikir, Hati, Tubuh).
+2. **FASE 2: ALMANAK** -> Ramalan Cuaca Nasib (Kapan harus maju, kapan berteduh).
+3. **FASE 3: BEKAL** -> Tips praktis sehari-hari.
+
+VISUAL RULES:
+1. **NO FLUFF**: Hapus kalimat pembuka basi ("Berikut adalah analisis..."). Langsung ke poin.
+2. **READABILITY**: Gunakan poin-poin agar enak dibaca di HP.
 `;
 
-// --- STRUKTUR "THE ALMANAC" (TARGET 40 HALAMAN) ---
+// --- STRUKTUR "THE ALMANAC" (TARGET 40 HALAMAN - VERSI HUMANIS) ---
 const getSections = (dateContext: string, clientName: string) => [
-  // --- BAGIAN 1: DIAGNOSIS (THE WAKE UP CALL) ---
+  // --- BAGIAN 1: DIAGNOSIS (MEMAHAMI DIRI) ---
   {
     id: 'EXEC_SUM',
-    title: 'Executive Summary: The Blueprint',
+    title: 'Ringkasan Jiwa & Potensi',
     prompt: `
-    TUGAS: Tulis Executive Summary (2 Halaman).
+    TUGAS: Tulis Ringkasan Eksekutif (2 Halaman) dengan bahasa yang mengalir.
     
-    1. **Sapaan**: "Halo, ${clientName}." (Singkat).
-    2. **Tabel Big Three**: Sun, Moon, Rising + Chart Ruler.
-    3. **Core Conflict**: Analisis tajam tentang pertentangan batin terbesarnya.
-    4. **The Hook**: Validasi kekuatan supernya, tapi telanjangi kelemahan fatalnya.
+    Structure:
+    1. **Siapa Kamu Sebenarnya**: Terjemahkan Big Three (Sun/Moon/Rising) menjadi karakter cerita. (Misal: "Kamu adalah Pejuang yang Berhati Lembut").
+    2. **Pedang Terkuatmu**: Apa bakat alamiah yang membuat klien spesial?
+    3. **Rantai Penahan**: Apa kebiasaan buruk atau ketakutan yang sering menyabotase diri sendiri? (Bahas dengan lembut).
+    4. **Tema Tahun Ini**: Satu kalimat tema besar untuk tahun ini.
     `
   },
   { 
     id: 'BAB1', 
-    title: 'Bab 1: Analisis Psikologi & Mental (The Psyche)', 
+    title: 'Bab 1: Isi Kepala & Ketenangan Hati', 
     prompt: `
-    [INTERNAL MONOLOGUE]: Fokus Moon (Pikiran), Mercury (Logika), Rahu (Obsesi).
+    [INTERNAL MONOLOGUE]: Fokus Moon (Perasaan) & Mercury (Cara Bicara).
     
-    TUGAS: Tulis analisis psikologis mendalam (Target: 3 Halaman).
-    - Bedah isi kepalanya. Apakah dia Overthinker? Paranoid? Atau Jenius yang kacau?
-    - Jelaskan mekanisme pertahanan dirinya saat stres.
-    - Gunakan sub-bab (###) untuk memecah topik.
+    TUGAS: Analisis Karakter (Target: 3 Halaman).
+    - **Cara Berpikir**: Apakah klien tipe pemikir cepat (sat-set) atau tipe perasa yang butuh waktu?
+    - **Sumber Cemas**: Apa yang sering bikin klien overthinking di malam hari?
+    - **Solusi Ketenangan**: Cara terbaik bagi klien untuk 'menjinakkan' pikirannya yang ribut.
     ` 
   },
   { 
     id: 'BAB2', 
-    title: 'Bab 2: Vitalitas & Kesehatan Fisik', 
+    title: 'Bab 2: Baterai Tubuh & Kesehatan', 
     prompt: `
-    [INTERNAL MONOLOGUE]: Fokus House 6 (Akut), House 8 (Kronis), Sun (Energi).
+    [INTERNAL MONOLOGUE]: Fokus Sun (Energi Dasar), House 6 (Sakit Harian), Saturn (Tulang/Kronis).
     
-    TUGAS: Analisis Medis & Energi (Target: 2 Halaman).
-    - Tabel Risiko Kesehatan per organ tubuh.
-    - Peringatan tentang pola hidup yang merusak (misal: kurang tidur, stimulan).
-    - Prediksi kesehatan jangka panjang.
+    TUGAS: Cek Kesehatan & Energi (Target: 2 Halaman).
+    - **Level Energi**: Apakah klien tipe pelari maraton (tahan lama) atau pelari sprint (cepat lelah)?
+    - **Sinyal Bahaya**: Bagian tubuh mana yang paling "rewel" kalau stres? (Lambung? Kepala?).
+    - **Tips Sehat**: Saran istirahat yang cocok (Misal: Apakah butuh tidur lama, atau butuh jalan-jalan ke alam?).
     ` 
   },
   { 
     id: 'BAB3', 
-    title: 'Bab 3: Arsitektur Kekayaan & Karier', 
+    title: 'Bab 3: Pintu Rezeki & Karier', 
     prompt: `
-    [INTERNAL MONOLOGUE]: Fokus House 2, 10, 11 dan Jupiter/Saturn.
+    [INTERNAL MONOLOGUE]: Fokus House 2 (Uang Masuk), 10 (Reputasi), Jupiter (Berkah).
     
-    TUGAS: Blueprint Ekonomi (Target: 3 Halaman).
-    - Dari mana uang datang paling deras? (Jalur Rezeki).
-    - Apakah dia ditakdirkan menjadi Raja (Owner) atau Perdana Menteri (Professional)?
-    - Analisis gaya kepemimpinan dan manajemen aset.
+    TUGAS: Panduan Karier (Target: 3 Halaman).
+    - **Gaya Kerja**: Apakah cocok jadi Bos, Profesional, atau Seniman Bebas?
+    - **Magnet Uang**: Dari aktivitas apa uang paling gampang datang? (Bicara? Menulis? Berdagang?).
+    - **Hambatan Rezeki**: Apa sifat yang bikin uang cepat habis?
     ` 
   },
   { 
     id: 'BAB4', 
-    title: 'Bab 4: Musuh, Hutang & Risiko', 
+    title: 'Bab 4: Musuh Dalam Selimut & Risiko', 
     prompt: `
-    [INTERNAL MONOLOGUE]: Fokus House 6 (Musuh), House 12 (Losses/Hidden Enemies).
+    [INTERNAL MONOLOGUE]: Fokus House 8 (Mendadak), 12 (Tersembunyi).
     
-    TUGAS: Manajemen Risiko (Target: 2 Halaman).
-    - Siapa yang akan mengkhianatinya? Teman? Pasangan bisnis?
-    - Potensi kebangkrutan atau masalah hukum.
-    - Cara memitigasi skandal publik.
+    TUGAS: Peringatan Dini (Target: 2 Halaman).
+    - **Titik Buta**: Kesalahan apa yang sering diulang-ulang tanpa sadar? (Misal: Terlalu percaya teman).
+    - **Orang Toxic**: Tipe orang seperti apa yang harus dihindari tahun ini?
+    - Cara menghindari masalah hukum atau skandal.
     ` 
   },
   { 
     id: 'BAB5', 
-    title: 'Bab 5: Dinamika Cinta & Rumah Tangga', 
+    title: 'Bab 5: Cinta & Hubungan', 
     prompt: `
     [INTERNAL MONOLOGUE]: Fokus House 7, Venus, Mars.
     
-    TUGAS: Profiling Hubungan (Target: 3 Halaman).
-    - Tipe pasangan seperti apa yang dia tarik (vs yang dia butuhkan).
-    - Pola toxic dalam hubungan (Red Flags diri sendiri).
-    - Potensi perceraian atau konflik rumah tangga.
+    TUGAS: Urusan Hati (Target: 3 Halaman).
+    - **Bahasa Cinta**: Klien butuh pasangan yang memuja atau yang menantang debat?
+    - **Pola Berulang**: Kenapa sering ketemu orang yang salah? (Jika ada indikasi).
+    - Tips agar hubungan awet dan minim drama.
     ` 
   },
   { 
     id: 'BAB6', 
-    title: 'Bab 6: Geografi Keberuntungan', 
+    title: 'Bab 6: Tempat & Lingkungan Terbaik', 
     prompt: `
-    [INTERNAL MONOLOGUE]: Fokus House 3, 9, 12.
+    [INTERNAL MONOLOGUE]: Fokus House 4 (Rumah), 9 (Jauh).
     
-    TUGAS: Astrocartography (Target: 2 Halaman).
-    - Apakah dia harus merantau jauh dari tempat lahir?
-    - Arah mata angin keberuntungan.
-    - Kota/Negara yang cocok untuk bisnis vs pensiun.
+    TUGAS: Astrocartography Sederhana (Target: 2 Halaman).
+    - Apakah klien lebih hoki di tanah kelahiran atau di rantau?
+    - Suasana rumah seperti apa yang bikin rezeki lancar? (Tenang? Ramai? Dekat air?).
     ` 
   },
 
-  // --- BAGIAN 2: THE ALMANAC (VOLUME BOOSTER - FORECAST BULANAN) ---
-  // Strategi: Memecah menjadi 4 request terpisah untuk memaksa output panjang & detail.
+  // --- BAGIAN 2: THE ALMANAC (PANDUAN BULANAN) ---
   { 
     id: 'BAB7_Q1', 
-    title: 'Bab 7.1: Forecast Q1 (Januari - Maret)', 
+    title: 'Bab 7.1: Ramalan Cuaca Q1 (Januari - Maret)', 
     prompt: `
-    MODE: TACTICAL GENERAL. Jangan marah-marah. Fokus Strategi.
+    MODE: PEMANDU JALAN.
     
-    TUGAS: Buat PANDUAN HARIAN/MINGGUAN detail untuk 3 bulan pertama (dimulai dari ${dateContext}).
+    TUGAS: Panduan 3 Bulan Pertama (mulai ${dateContext}).
+    Gunakan analogi cuaca (Cerah, Berawan, Badai).
     
-    FORMAT WAJIB SETIAP BULAN:
-    ### [NAMA BULAN]: [Tema Utama Kapital]
-    - **Fokus Strategis**: (Apa goal utama bulan ini)
-    - **Tanggal Merah (Warning)**: (Sebutkan tanggal spesifik jika ada aspek buruk)
-    - **Peluang Emas**: (Tanggal/Momen terbaik)
-    - **Saran Aksi**: (Do's and Don'ts spesifik)
-    
-    JANGAN PELIT KATA. Tulis skenario spesifik apa yang mungkin terjadi di karier/asmara.
+    FORMAT PER BULAN:
+    ### [NAMA BULAN]: [Tema Utama]
+    - **Fokus Utama**: Apa yang harus dikejar?
+    - **Awas Lubang**: Tanggal atau hal yang harus dihindari.
+    - **Hari Baik**: Waktu terbaik untuk aksi penting.
+    - **Saran Teman**: Nasihat spesifik.
     ` 
   },
   { 
     id: 'BAB7_Q2', 
-    title: 'Bab 7.2: Forecast Q2 (April - Juni)', 
+    title: 'Bab 7.2: Ramalan Cuaca Q2 (April - Juni)', 
     prompt: `
-    MODE: TACTICAL GENERAL.
-    
-    TUGAS: Lanjutkan panduan detail untuk Bulan ke-4, 5, dan 6.
-    Fokus Spesifik: **Karier & Ekspansi Bisnis**.
-    
-    Berikan detail bulan demi bulan dengan format yang sama (Tema, Fokus, Tanggal Penting, Saran Aksi).
+    MODE: PEMANDU JALAN.
+    TUGAS: Lanjutkan panduan April, Mei, Juni.
+    Fokus: Karier & Usaha. Kapan harus gas pol, kapan harus ngerem.
     ` 
   },
   { 
     id: 'BAB7_Q3', 
-    title: 'Bab 7.3: Forecast Q3 (Juli - September)', 
+    title: 'Bab 7.3: Ramalan Cuaca Q3 (Juli - September)', 
     prompt: `
-    MODE: TACTICAL GENERAL.
-    
-    TUGAS: Lanjutkan panduan detail untuk Bulan ke-7, 8, dan 9.
-    Fokus Spesifik: **Kesehatan & Keuangan Pribadi**.
-    
-    Pastikan ada peringatan jika ada periode retrograde atau gerhana di bulan-bulan ini.
+    MODE: PEMANDU JALAN.
+    TUGAS: Lanjutkan panduan Juli, Agustus, September.
+    Fokus: Kesehatan & Keuangan. Ingatkan untuk menabung atau jaga badan.
     ` 
   },
   { 
     id: 'BAB7_Q4', 
-    title: 'Bab 7.4: Forecast Q4 (Oktober - Desember)', 
+    title: 'Bab 7.4: Ramalan Cuaca Q4 (Oktober - Desember)', 
     prompt: `
-    MODE: TACTICAL GENERAL.
-    
-    TUGAS: Lanjutkan panduan detail untuk Bulan ke-10, 11, dan 12.
-    Fokus Spesifik: **Evaluasi Akhir Tahun & Hubungan Keluarga**.
-    
-    Tutup Q4 dengan ringkasan pencapaian yang harus diraih sebelum tahun berganti.
+    MODE: PEMANDU JALAN.
+    TUGAS: Lanjutkan panduan Akhir Tahun.
+    Fokus: Evaluasi & Keluarga.
     ` 
   },
 
-  // --- BAGIAN 3: THE STRATEGIC TOOLKIT (VALUE ADD) ---
+  // --- BAGIAN 3: BEKAL PRAKTIS ---
   { 
     id: 'BAB8', 
-    title: 'Bab 8: The Cheat Sheet (Ritual & Protokol)', 
+    title: 'Bab 8: Jimat & Kebiasaan Baik', 
     prompt: `
-    MODE: PRAKTIS & DIRECT.
+    MODE: SAHABAT PEDULI.
     
-    TUGAS: Buat "Lembar Contekan" (SOP Kehidupan). Buat dalam format List/Checklist.
+    TUGAS: Buat daftar tips praktis.
     
-    1. **Power Colors & Gems**: Warna baju/aksesoris untuk meeting penting vs untuk kencan.
-    2. **Daily Routine Protocol**: Jam bangun ideal, jam produktif (Deep Work), jam istirahat berdasarkan ritme sirkadian astrologi.
-    3. **Dietary Guidelines**: Makanan yang memperkuat elemen lemahnya (Ayurveda perspective).
-    4. **Mantra/Affirmation**: Kalimat kunci untuk menenangkan pikiran saat chaos.
+    1. **Warna Keberuntungan**: Warna baju apa yang bikin PD naik?
+    2. **Jam Produktif**: Kapan otak klien paling encer? Pagi buta atau tengah malam?
+    3. **Pantangan Makanan**: Makanan apa yang bikin badan berat (sesuai elemen tubuh)?
     ` 
   },
   { 
     id: 'BAB9', 
-    title: 'Bab 9: Skenario "What-If" (Simulasi Masa Depan)', 
+    title: 'Bab 9: Simulasi Pilihan Hidup', 
     prompt: `
-    MODE: STRATEGIC SIMULATION.
+    MODE: PENASIHAT BIJAK.
     
-    TUGAS: Buat 3 Skenario Simulasi Keputusan Besar tahun ini.
+    TUGAS: Bayangkan 3 Skenario.
     
-    1. **Skenario A (Agresif)**: Jika Klien memutuskan Pindah Kerja/Ekspansi Bisnis Besar-besaran -> Apa risikonya? Apa rewardnya?
-    2. **Skenario B (Konservatif)**: Jika Klien memilih bertahan (Do Nothing) -> Apa kerugian momentumnya?
-    3. **Skenario C (Personal)**: Jika Klien fokus pada Asmara/Keluarga -> Apakah karier akan korban?
-    
-    Berikan rekomendasi jalan mana yang paling sesuai dengan chart tahun ini.
+    1. **Jalan Ngebut**: Kalau tahun ini klien nekat ambil risiko besar, apa jadinya?
+    2. **Jalan Santai**: Kalau klien pilih main aman saja, apa ruginya?
+    3. **Saran Terbaik**: Jalan tengah mana yang Natalie sarankan?
     ` 
   },
   
   // --- PENUTUP ---
   { 
     id: 'BAB_CLOSE', 
-    title: 'Pesan Terakhir', 
+    title: 'Pesan Perpisahan', 
     prompt: `
-    TUGAS: Penutup Filosofis.
+    TUGAS: Surat Penutup yang Hangat.
     
-    Ingatkan bahwa report tebal ini hanyalah peta. Dia adalah nahkodanya.
-    Tutup dengan tanda tangan berkelas: "Natalie Lau."
+    Ingatkan: Bintang-bintang cuma penunjuk arah, kaki kamu yang melangkah.
+    Tutup dengan hangat: "Teman setiamu, Natalie Lau".
     ` 
   }
 ];
@@ -243,16 +237,21 @@ export const generateReport = async (
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
   
-  // CONTEXT CHAINING
   let lastContext = ""; 
-
   let currentClientName = data.clientName || "Klien";
-
   const sections = getSections(formatDate(data.analysisDate), currentClientName);
   
+  // LOGIKA CONCERN: LEBIH NATURAL
   const concernContext = data.concerns && data.concerns.trim().length > 3
-    ? `[TARGET ANALISIS]: Klien mengeluh: "${data.concerns}". Gunakan ini sebagai referensi masalah.`
-    : `[TARGET ANALISIS]: Bongkar potensi maksimal dan risiko tersembunyi.`;
+    ? `
+    [CURHAT KLIEN]:
+    "${data.concerns}"
+    
+    INSTRUKSI:
+    Simpan curhatan ini di benakmu. Jawablah kegelisahan ini saat membahas bab yang pas (misal: bahas jodoh HANYA di bab cinta).
+    Jangan diulang-ulang di setiap bab. Jawablah seperti teman yang mendengarkan.
+    `
+    : `[NO SPECIFIC CONCERN]: Klien tidak curhat apa-apa. Berikan panduan umum yang menyeluruh.`;
 
   for (const section of sections) {
     let attempts = 0;
@@ -261,17 +260,16 @@ export const generateReport = async (
 
     while (attempts < maxAttempts && !sectionSuccess) {
       try {
-        onStatusUpdate(section.id === 'EXEC_SUM' ? 'Menganalisis DNA Kosmik...' : `Menulis ${section.title}...`);
+        onStatusUpdate(section.id === 'EXEC_SUM' ? 'Membaca Peta Bintang...' : `Menulis ${section.title}...`);
         
-        // --- CONTEXT CONSTRUCTION ---
         const continuityPrompt = section.id === 'EXEC_SUM' 
           ? "Ini adalah AWAL DOKUMEN."
           : `
-          KONTEKS SEBELUMNYA (Hanya untuk menjaga alur, JANGAN diulang):
+          KONTEKS SEBELUMNYA (Agar nyambung, jangan diulang):
           "...${lastContext}"
           
-          INSTRUKSI: Lanjutkan penulisan langsung masuk ke ${section.title}. 
-          JANGAN MEMBUAT PEMBUKAAN BARU. JANGAN MENYAPA LAGI.
+          INSTRUKSI: Lanjutkan cerita langsung masuk ke topik ${section.title}. 
+          Tetap santai, bijak, dan mudah dimengerti.
           `;
 
         const prompt = `
@@ -283,14 +281,13 @@ export const generateReport = async (
         
         ${section.prompt}
         
-        [SUMBER DATA CHART KLIEN]:
-        Gunakan data ini untuk detail spesifik:
+        [DATA CHART KLIEN]:
         ${data.rawText || "Analisis berdasarkan file chart."}
         
-        IMPORTANT REMINDER:
-        - Output Markdown Table rapi (jika diminta).
-        - HAPUS SEMUA KALIMAT PENGANTAR (FILLER).
-        - Patuhi tone fase (Diagnosis vs Tactical).
+        REMINDER:
+        - Gunakan Bahasa Indonesia yang luwes & enak dibaca.
+        - Hindari istilah teknis yang bikin pusing.
+        - HAPUS KALIMAT PENGANTAR (Langsung ke isi).
         `;
 
         const processedFiles: any[] = [];
@@ -311,14 +308,11 @@ export const generateReport = async (
           const text = chunk.text;
           if (text) {
             sectionContent += text;
-            
             let displayContent = (accumulatedReport ? accumulatedReport + "\n\n" : "") + sectionContent;
             
-            // Real-time cleaning
             if (section.id !== 'EXEC_SUM') {
                displayContent = displayContent.replace(/(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/gim, "");
             }
-            
             onStream(displayContent);
           }
 
@@ -335,7 +329,6 @@ export const generateReport = async (
 
         let cleanText = sectionContent.trim();
         
-        // --- FAILSAFE CLEANING ---
         if (section.id !== 'EXEC_SUM') {
            cleanText = cleanText
              .replace(/^(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/gim, "") 
@@ -345,10 +338,7 @@ export const generateReport = async (
 
         if (accumulatedReport) accumulatedReport += "\n\n<div class='page-break'></div>\n\n"; 
         accumulatedReport += cleanText;
-        
-        // --- CONTEXT CAPTURE ---
         lastContext = cleanText.slice(-600).replace(/\n/g, " ");
-
         sectionSuccess = true;
 
       } catch (err) {
