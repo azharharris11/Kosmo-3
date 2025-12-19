@@ -229,18 +229,6 @@ export const generateReport = async (
   let currentClientName = data.clientName || "Klien";
   const sections = getSections(formatDate(data.analysisDate), currentClientName);
   
-  // --- LOGIC GATE PERBAIKAN: HANYA BAHAS JIKA RELEVAN ---
-  const concernContext = data.concerns && data.concerns.trim().length > 3
-    ? `
-    [INFO KELUHAN KLIEN]: "${data.concerns}"
-    
-    ATURAN INTEGRASI KELUHAN (PENTING):
-    1. Cek apakah keluhan di atas **RELEVAN** dengan [TOPIK BAB INI].
-    2. **JIKA RELEVAN**: Jadikan keluhan ini fokus utama analisis di bab ini. Berikan solusi spesifik.
-    3. **JIKA TIDAK RELEVAN** (Misal: Keluhan 'Karir' di bab 'Cinta'): **ABAIKAN** keluhan ini sepenuhnya. Fokuslah murni pada topik bab tanpa memaksakan sambungan ke keluhan.
-    `
-    : ""; 
-
   for (const section of sections) {
     let attempts = 0;
     const maxAttempts = 3;
@@ -250,6 +238,24 @@ export const generateReport = async (
       try {
         onStatusUpdate(section.id === 'PREFACE' ? 'Menulis Surat Pembuka...' : `Menganalisis ${section.title}...`);
         
+        // --- LOGIC GATE: FILTER KELUHAN (PER BAB) ---
+        let dynamicConcernPrompt = "";
+        
+        if (data.concerns && data.concerns.trim().length > 3) {
+           dynamicConcernPrompt = `
+           --- FILTER RELEVANSI KELUHAN (CRITICAL INSTRUCTION) ---
+           INFO KELUHAN KLIEN: "${data.concerns}"
+           
+           TUGAS VALIDASI ANDA:
+           Apakah keluhan di atas secara LOGIS dan LANGSUNG berkaitan dengan topik bab ini: "${section.title}"?
+           
+           ATURAN KERAS:
+           1. JIKA RELEVAN (Misal: Keluhan 'Uang' di bab 'Karir' atau 'Keuangan'): Jadikan keluhan ini inti pembahasan. Berikan solusi astrologi yang tajam.
+           2. JIKA TIDAK RELEVAN (Misal: Keluhan 'Jodoh' tapi ini bab 'Karir'): ANDA DILARANG MENYEBUTKAN KELUHAN TERSEBUT. Lupakan keluhan itu untuk bab ini. Fokus 100% pada pembacaan standar chart untuk topik ${section.title}.
+           -------------------------------------------------------
+           `;
+        }
+
         const continuityPrompt = section.id === 'PREFACE' 
           ? "TUGAS: Tulis surat pembuka yang ramah dan profesional." 
           : `
@@ -264,16 +270,16 @@ export const generateReport = async (
         
         [TOPIK BAB INI]: ${section.title}
         
-        ${concernContext}
-        
         ${section.prompt}
+        
+        ${dynamicConcernPrompt}
         
         [DATA ASTROLOGI]:
         ${data.rawText || "Analisis dari file chart terlampir."}
         
         REMINDER KHUSUS:
         1. GUNAKAN BAHASA INDONESIA YANG LUGAS, JELAS, MUDAH DIMENGERTI.
-        2. HINDARI ISTILAH METAFORA YANG MEMBINGUNGKAN (JANGAN PAKAI 'ARCHETYPE', 'SABOTEUR', DLL).
+        2. JIKA KELUHAN KLIEN TIDAK COCOK DENGAN TOPIK BAB INI, JANGAN DIPAKSAKAN MASUK.
         3. JANGAN ULANGI INSTRUKSI PROMPT DALAM OUTPUT.
         `;
 
@@ -301,7 +307,13 @@ export const generateReport = async (
                 .replace(/^TUGAS:.*$/m, "")
                 .trimStart();
 
-            let displayContent = (accumulatedReport ? accumulatedReport + "\n\n" : "") + cleanChunk;
+            // --- STREAMING FIX: INJEKSI HEADER SECARA REALTIME ---
+            const separator = accumulatedReport ? "\n\n<div class='page-break'></div>\n\n" : "";
+            const currentHeader = `## ${section.title}\n\n`; // Header Bab Saat Ini
+            
+            // Gabungkan: Laporan Lama + Separator + Header Baru + Isi Baru
+            let displayContent = accumulatedReport + separator + currentHeader + cleanChunk;
+            
             onStream(displayContent);
           }
 
@@ -318,13 +330,15 @@ export const generateReport = async (
 
         // CLEANING
         let cleanText = sectionContent
-             .replace(/^(\[TOPIK BAB INI\]|TUGAS|INSTRUKSI|KONTEKS):.*$/gm, "")
+             .replace(/^(\[TOPIK BAB INI\]|TUGAS|INSTRUKSI|KONTEKS|--- FILTER):.*$/gm, "")
              .replace(/Ini adalah AWAL LAPORAN/gi, "")
              .replace(section.id === 'PREFACE' ? /xyz_never_match/ : /^(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/gim, "")
              .trim();
 
         if (accumulatedReport) accumulatedReport += "\n\n<div class='page-break'></div>\n\n"; 
-        accumulatedReport += cleanText;
+        
+        // --- FINAL SAVE FIX: PAKSA HEADER MASUK KE HASIL AKHIR ---
+        accumulatedReport += `## ${section.title}\n\n${cleanText}`;
         
         lastContext = cleanText.slice(-400).replace(/\n/g, " ");
         sectionSuccess = true;
