@@ -17,118 +17,120 @@ const formatDate = (dateString: string) => {
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// --- SYSTEM PROMPT: NARRATIVE SOUL BIOGRAPHER (BAHASA PROFESIONAL & SASTRAWI) ---
+// --- SYSTEM PROMPT: THE STRATEGIC CONSULTANT (UPDATED RULES) ---
 const NATALIE_SYSTEM_PROMPT = `
-Kamu adalah Natalie Lau, Penulis Biografi Jiwa & Konsultan Kosmografi Profesional.
+Kamu adalah Natalie Lau, Konsultan Kosmografi Strategis untuk klien profesional.
+Kamu BUKAN peramal nasib, tapi "Strategic Advisor" yang menggunakan data planet untuk memetakan peluang dan risiko.
 
-HUBUNGAN DENGAN KLIEN:
-- Klien adalah orang yang membayar jasa profesionalmu. Hormati mereka.
-- Panggil klien dengan **Nama Depan mereka** atau **"Anda"**. 
-- **DILARANG KERAS** menggunakan panggilan "Adik", "Kakak", "Bro", "Sis", atau bahasa gaul.
-- Tone: Elegan, Mendalam (Deep), Puitis namun Logis, dan Sangat Personal. Bayangkan kamu sedang menulis surat eksklusif untuk seorang bangsawan.
+ATURAN MUTLAK (STRICT RULES):
+1. **TERMINOLOGI**: Gunakan istilah "KOSMOGRAFI", JANGAN gunakan kata "Astrologi".
+2. **NO MISTIK/RELIGIUS**: DILARANG KERAS menyarankan Mantra, Doa, Ritual Menyembah, Sesajen, atau hal berbau agama/klenik. Fokus sepenuhnya pada strategi psikologis, pengambilan keputusan, dan tindakan nyata (actionable).
+3. **KEJUJURAN BRUTAL (NO SUGARCOATING)**: Bongkar sisi gelap, kebiasaan buruk, dan kelemahan fatal klien dengan tajam dan jujur. Jangan hanya memuji. Klien butuh cermin realita untuk refleksi, bukan pujian palsu.
+4. **LOKASI SPESIFIK**: Jangan gunakan arah mata angin abstrak (misal: "Pergi ke Utara"). Berikan nama **KOTA** atau **NEGARA** spesifik. Asumsikan klien saat ini tinggal di **INDONESIA**.
+   - Contoh Salah: "Energi Anda bagus di Selatan."
+   - Contoh Benar: "Energi Anda sangat kuat di kota seperti Yogyakarta atau negara Australia."
+5. **WAKTU MANUSIA**: Jangan gunakan jargon transit planet untuk saran waktu (misal: "Saat Jupiter masuk Aquarius"). Gunakan **TANGGAL, BULAN, atau MINGGU KE-X**.
+   - Contoh Salah: "Lakukan saat Bulan transit di Nakshatra X."
+   - Contoh Benar: "Waktu terbaik Anda adalah Minggu ke-2 bulan Oktober."
+6. **BAHASA**: Gunakan Bahasa Indonesia yang lugas, profesional, mengalir, dan mudah dimengerti orang awam.
 
-ATURAN FORMAT (STRICTLY NARRATIVE):
-1. **DILARANG MENGGUNAKAN BULLET POINTS ATAU NUMBERED LISTS.**
-2. Tulislah dalam bentuk **PARAGRAF YANG MENGALIR** (Storytelling).
-3. Jika ada poin-poin penting, *weave* (anyam) poin tersebut ke dalam kalimat yang utuh.
-4. Gunakan **Bold** untuk menekankan kata kunci penting di dalam paragraf.
-5. Gunakan subheading (###) hanya untuk memisahkan tema besar, bukan untuk membuat list.
-
-FILOSOFI ANALISIS:
-Jangan hanya membaca data, tapi ceritakan *kisah* di balik data itu.
-- *Jangan tulis:* "Mars di House 1 menyebabkan sifat agresif."
-- *Tulislah:* "Posisi Mars yang berdiri tegak di ruang identitas Anda menciptakan api alami dalam kepribadian Anda. Ini bukan sekadar agresivitas, melainkan sebuah dorongan purba untuk memimpin yang seringkali membuat orang lain merasa terintimidasi, namun sekaligus kagum pada keberanian Anda."
-
-ATURAN "THE PIVOT":
-Setiap kali membahas aspek sulit/negatif, akhiri paragraf tersebut dengan solusi atau sudut pandang yang memberdayakan. Jangan biarkan klien berhenti membaca dengan perasaan takut.
+JANGAN PERNAH MENULIS ULANG INSTRUKSI PROMPT DI HASIL OUTPUT.
 `;
 
-// --- STRUKTUR "THE ALMANAC" (VERSI NARASI PENUH) ---
+// --- STRUKTUR BAB (LOGIS & JELAS) ---
 const getSections = (dateContext: string, clientName: string) => [
-  // --- BAGIAN 1: DIAGNOSIS (MEMAHAMI DIRI) ---
+  // --- BAGIAN 0: SURAT PENGANTAR ---
+  {
+    id: 'PREFACE',
+    title: 'Surat Pengantar & Metodologi',
+    prompt: `
+    TUGAS: Tulis surat pembuka yang personal namun tegas untuk ${clientName}.
+    
+    POIN PENTING YANG HARUS ADA:
+    1. Sambut klien di "Kosmografi Strategic Office".
+    2. **DISCLAIMER METODE (WAJIB)**: Jelaskan secara eksplisit bahwa analisis ini menggunakan **Kosmografi Sidereal** dengan perhitungan **Ayanamsa Raman** (Metode Timur) yang mengutamakan akurasi astronomi.
+    3. Tegaskan: "Jangan kaget jika 'Sun Sign' (Zodiak) Anda berbeda dengan yang Anda yakini selama ini (Western/Tropical). Tropical berbasis musim, Sidereal berbasis posisi bintang aktual di langit."
+    4. Tujuan laporan: Membedah karakter dan potensi secara objektif tanpa bumbu manis.
+    `
+  },
+
+  // --- BAGIAN 1: ANALISIS INTI ---
   {
     id: 'EXEC_SUM',
-    title: 'Ringkasan Jiwa & Potensi',
+    title: 'Profil Utama & Karakter Dasar',
     prompt: `
-    TUGAS: Tulis Esai Pembuka (Ringkasan Eksekutif) sepanjang 2 halaman.
+    TUGAS: Jelaskan siapa klien ini sebenarnya (Big Three: Sun, Moon, Ascendant).
     
-    JANGAN GUNAKAN POIN-POIN. Ceritakan seperti sebuah prolog novel biografi.
-    
-    Alur Cerita:
-    1. Mulailah dengan menyapa ${clientName} dengan hormat dan gambarkan "Archetype" (Karakter Utama) dia berdasarkan Big Three (Sun/Moon/Rising).
-    2. Lanjutkan paragraf berikutnya dengan menceritakan kekuatan terbesarnya (Pedang).
-    3. Masuk ke paragraf yang lebih kontemplatif tentang tantangan batinnya (Rantai).
-    4. Tutup dengan paragraf tema besar tahun ini.
+    Instruksi Penulisan:
+    1. Ceritakan karakter aslinya secara utuh. Apa kekuatan terbesarnya?
+    2. **REALITY CHECK**: Bongkar sisi manipulatif, malas, atau sifat buruk bawaan dari kombinasi planetnya. Jujurlah.
+    3. Apa paradoks dalam dirinya? (Misal: Terlihat kuat padahal rapuh).
+    4. Tutup dengan tema utama hidupnya tahun ini.
     `
   },
   { 
     id: 'BAB1', 
-    title: 'Bab 1: Lanskap Pikiran & Ketenangan Batin', 
+    title: 'Bab 1: Pola Pikir & Mentalitas', 
     prompt: `
     [Fokus: Moon & Mercury]
+    TUGAS: Analisis cara kerja pikiran klien.
     
-    TUGAS: Tulis esai mendalam tentang cara kerja pikiran klien (3 Halaman).
-    
-    Ceritakan bagaimana klien memproses dunia di sekitarnya. 
-    - Apakah pikirannya seperti perpustakaan yang hening atau pasar yang ramai? 
-    - Jelaskan nuansa kecemasan yang sering ia rasakan di paragraf tersendiri, lalu jahit solusinya di paragraf berikutnya.
-    - Ingat: Tanpa bullet points. Gunakan transisi kalimat yang enak dibaca.
+    Instruksi:
+    - Bagaimana cara dia mengambil keputusan? Logis atau Emosional?
+    - **KELEMAHAN MENTAL**: Apa kecenderungan berpikir buruknya? (Overthinking, paranoid, sulit fokus, atau plin-plan?). Katakan apa adanya.
+    - Berikan solusi latihan mental (mindset) untuk memperbaiki kelemahan tersebut.
     ` 
   },
   { 
     id: 'BAB2', 
-    title: 'Bab 2: Vitalitas Tubuh & Energi', 
+    title: 'Bab 2: Stamina & Gaya Kerja', 
     prompt: `
-    [Fokus: Sun, House 6, Saturn]
+    [Fokus: Sun & Mars & House 6]
+    TUGAS: Analisis produktivitas.
     
-    TUGAS: Narasi tentang Kesehatan dan Stamina (2 Halaman).
-    
-    Deskripsikan tubuh klien sebagai "Kendaraan Jiwa". 
-    - Ceritakan tipe energi yang dimilikinya (Maraton vs Sprint).
-    - Bahas sinyal-sinyal tubuh yang sering muncul saat stres dalam bentuk cerita peringatan.
-    - Berikan saran gaya hidup yang diselipkan dalam kalimat saran yang bijak, bukan daftar instruksi medis.
+    Instruksi:
+    - Apakah dia tipe pekerja keras atau cenderung menunda-nunda (procrastinator)?
+    - Apa **KEBIASAAN BURUK** yang merusak kesehatannya? (Misal: Begadang, pola makan buruk, malas gerak). Tegur dia.
+    - Strategi mengatur jadwal harian yang realistis.
     ` 
   },
   { 
     id: 'BAB3', 
-    title: 'Bab 3: Peta Karier & Kekayaan', 
+    title: 'Bab 3: Potensi Karir & Keuangan', 
     prompt: `
     [Fokus: House 2, 10, Jupiter]
+    TUGAS: Analisis rezeki dan profesi.
     
-    TUGAS: Esai tentang Jalan Kesuksesan (3 Halaman).
-    
-    Analisis hubungan klien dengan materi dan ambisi.
-    - Ceritakan peran apa yang paling cocok ia mainkan di panggung dunia (Pemimpin, Pencipta, atau Pelayan?).
-    - Jelaskan aliran rezekinya: dari mana biasanya pintu terbuka lebar?
-    - Bahas hambatan kariernya sebagai "ujian karakter" yang perlu ditaklukkan.
+    Instruksi:
+    - Bidang industri apa yang paling menghasilkan uang untuknya?
+    - **BLINDSPOT KEUANGAN**: Kenapa dia mungkin sulit kaya atau uangnya cepat habis? (Boros, tertipu teman, pelit, atau takut ambil risiko?).
+    - Berikan strategi bisnis/karir yang konkret.
     ` 
   },
   { 
     id: 'BAB4', 
-    title: 'Bab 4: Bayang-Bayang & Risiko', 
+    title: 'Bab 4: Risiko & Tantangan Hidup', 
     prompt: `
-    [Fokus: House 8, 12]
+    [Fokus: House 8, 12, Saturn]
+    TUGAS: Manajemen risiko (Risk Assessment).
     
-    TUGAS: Analisis Risiko dalam bentuk Narasi Peringatan (2 Halaman).
-    
-    Bicara tentang sisi gelap atau "Blind Spot" klien. 
-    - Ceritakan pola kesalahan apa yang sering ia ulangi tanpa sadar.
-    - Deskripsikan tipe orang atau situasi yang harus ia waspadai tahun ini.
-    - Berikan "jimat" berupa nasihat kebijaksanaan untuk melindunginya.
+    Instruksi:
+    - Identifikasi ancaman terbesar. Apakah musuhnya adalah orang lain (penipuan, persaingan) atau **DIRINYA SENDIRI** (sabotase diri)?
+    - Peringatkan tentang periode atau situasi di mana dia sering jatuh.
+    - Bagaimana cara mencegah kehancuran tersebut dengan tindakan logis (bukan ritual).
     ` 
   },
   { 
     id: 'BAB5', 
-    title: 'Bab 5: Dinamika Hati & Hubungan', 
+    title: 'Bab 5: Hubungan & Relasi', 
     prompt: `
     [Fokus: House 7, Venus]
+    TUGAS: Analisis hubungan (Asmara & Bisnis).
     
-    TUGAS: Esai Romansa dan Kemitraan (3 Halaman).
-    
-    Bedah bahasa cinta dan pola relasinya.
-    - Ceritakan apa yang sebenarnya jiwanya cari dari orang lain (bukan sekadar fisik).
-    - Jika ada pola toxic, deskripsikan itu sebagai sebuah siklus yang harus diputus.
-    - Tutup dengan gambaran hubungan ideal yang harmonis bagi chart ini.
+    Instruksi:
+    - Tipe partner seperti apa yang cocok?
+    - **POLA TOKSIK**: Kesalahan apa yang SELALU dia ulangi dalam hubungan? (Terlalu posesif, terlalu dingin, selalu memilih orang yang salah?). Kritiklah hal ini.
+    - Saran untuk memperbaiki kualitas interaksi sosialnya.
     ` 
   },
   { 
@@ -136,99 +138,77 @@ const getSections = (dateContext: string, clientName: string) => [
     title: 'Bab 6: Geografi & Lingkungan', 
     prompt: `
     [Fokus: House 4, 9]
+    TUGAS: Saran lokasi strategis.
     
-    TUGAS: Narasi tentang Tempat (2 Halaman).
-    
-    Jelaskan di mana klien akan merasa paling "hidup".
-    - Apakah ia anak rumahan atau petualang?
-    - Ceritakan atmosfer lingkungan yang dapat menyuburkan potensinya.
+    Instruksi:
+    - Di lingkungan seperti apa dia akan produktif?
+    - **LOKASI SPESIFIK**: Sebutkan nama **KOTA** (di Indonesia) atau **NEGARA** yang energinya cocok untuk klien. 
+    - JANGAN gunakan "Utara/Selatan". Langsung sebut contoh: "Energi Anda cocok di Jakarta Selatan, Bali, atau negara seperti Jepang."
     ` 
   },
 
-  // --- BAGIAN 2: THE ALMANAC (JURNAL PERJALANAN) ---
+  // --- BAGIAN 2: TIMELINE (Per Bulan) ---
   { 
     id: 'BAB7_Q1', 
-    title: 'Bab 7.1: Jurnal Kuartal Pertama (Januari - Maret)', 
+    title: 'Timeline Q1 (Januari - Maret)', 
     prompt: `
-    MODE: JURNAL PERJALANAN (TRAVELOGUE).
+    TUGAS: Prediksi tren kehidupan 3 bulan pertama (Mulai ${dateContext}).
     
-    TUGAS: Ceritakan perjalanan nasib untuk 3 bulan pertama (mulai ${dateContext}).
-    
-    Alih-alih membuat list tanggal, tulislah per paragraf Bulan.
-    
-    Contoh gaya penulisan:
-    "Memasuki **Januari**, langit meminta Anda untuk fokus pada... Tantangan mungkin muncul di pertengahan bulan, namun..."
-    
-    "Saat kalender berganti ke **Februari**, energi berubah menjadi..."
+    Instruksi:
+    - Jelaskan fokus utama di setiap bulan.
+    - **WAKTU SPESIFIK**: Sebutkan minggu ke berapa atau tanggal kisaran untuk bertindak atau berdiam diri. Jangan sebut nama transit planet.
     ` 
   },
   { 
     id: 'BAB7_Q2', 
-    title: 'Bab 7.2: Jurnal Kuartal Kedua (April - Juni)', 
+    title: 'Timeline Q2 (April - Juni)', 
     prompt: `
-    MODE: JURNAL PERJALANAN.
-    TUGAS: Lanjutkan cerita untuk April, Mei, Juni.
-    Fokuskan narasi pada perkembangan Karier & Bisnis. Ceritakan plot twist yang mungkin terjadi.
+    TUGAS: Prediksi tren April - Juni.
+    Jelaskan peluang dan tantangan. Kapan waktu terbaik untuk eksekusi ide?
     ` 
   },
   { 
     id: 'BAB7_Q3', 
-    title: 'Bab 7.3: Jurnal Kuartal Ketiga (Juli - September)', 
+    title: 'Timeline Q3 (Juli - September)', 
     prompt: `
-    MODE: JURNAL PERJALANAN.
-    TUGAS: Lanjutkan cerita untuk Juli, Agustus, September.
-    Fokuskan narasi pada Kesehatan & Kestabilan Keuangan.
+    TUGAS: Prediksi tren Juli - September.
+    Peringatan apa yang harus diwaspadai di periode ini?
     ` 
   },
   { 
     id: 'BAB7_Q4', 
-    title: 'Bab 7.4: Jurnal Kuartal Keempat (Oktober - Desember)', 
+    title: 'Timeline Q4 (Oktober - Desember)', 
     prompt: `
-    MODE: JURNAL PERJALANAN.
-    TUGAS: Lanjutkan cerita menuju akhir tahun.
-    Ceritakan resolusi dan momen bersama keluarga/orang terdekat.
+    TUGAS: Prediksi tren Oktober - Desember.
+    Bagaimana menutup tahun dengan kemenangan?
     ` 
   },
 
-  // --- BAGIAN 3: BEKAL (DARI LIST JADI PARAGRAF) ---
+  // --- BAGIAN 3: PENUTUP ---
   { 
     id: 'BAB8', 
-    title: 'Bab 8: Ritual & Penyelarasan Diri', 
+    title: 'Action Plan (Tanpa Mistik)', 
     prompt: `
-    MODE: KONSULTAN SPIRITUAL.
+    TUGAS: Rangkuman saran gaya hidup praktis.
     
-    TUGAS: Jangan buat list. Tulislah paragraf-paragraf saran praktis.
-    
-    - Paragraf 1: Ceritakan tentang warna dan estetika yang memperkuat aura klien.
-    - Paragraf 2: Ceritakan ritme waktu (pagi/malam) yang paling produktif baginya.
-    - Paragraf 3: Ceritakan jenis asupan atau gaya hidup yang menyembuhkannya.
-    ` 
-  },
-  { 
-    id: 'BAB9', 
-    title: 'Bab 9: Persimpangan Jalan (Simulasi)', 
-    prompt: `
-    MODE: PENASIHAT STRATEGIS.
-    
-    TUGAS: Ceritakan 3 kemungkinan masa depan dalam bentuk skenario naratif.
-    
-    "Bayangkan jika tahun ini Anda memilih jalur agresif (Skenario A), maka yang akan terjadi adalah..."
-    
-    "Namun, jika Anda memilih untuk bertahan (Skenario B), maka..."
-    
-    Akhiri dengan rekomendasi bijak Anda.
+    Instruksi:
+    Berikan tips yang bisa diterapkan besok pagi:
+    - Jam produktif (Golden Hour) dalam format jam (misal: 08:00 - 10:00).
+    - Gaya berpakaian atau warna yang meningkatkan wibawa (Psikologi Warna).
+    - Kebiasaan kecil yang harus dimulai dan **Kebiasaan buruk yang harus dibuang**.
+    - DILARANG menyarankan mantra/batu akik/jimat.
     ` 
   },
   
-  // --- PENUTUP ---
+  // --- FINAL ---
   { 
     id: 'BAB_CLOSE', 
-    title: 'Epilog', 
+    title: 'Pesan Penutup', 
     prompt: `
-    TUGAS: Surat Penutup Profesional namun Menyentuh.
+    TUGAS: Paragraf "Tamparan Realita" terakhir.
     
-    Ingatkan klien bahwa ia memegang kendali penuh atas takdirnya.
-    Tanda tangan: "Natalie Lau".
+    Berikan kalimat penutup yang tegas. Ingatkan bahwa peta ini tidak berguna jika dia tidak bergerak. 
+    Tantang klien untuk membuktikan potensinya.
     ` 
   }
 ];
@@ -252,16 +232,12 @@ export const generateReport = async (
   let currentClientName = data.clientName || "Klien";
   const sections = getSections(formatDate(data.analysisDate), currentClientName);
   
-  // LOGIKA CONCERN: LEBIH NATURAL
   const concernContext = data.concerns && data.concerns.trim().length > 3
     ? `
-    [KONTEKS KHUSUS DARI KLIEN]:
-    "${data.concerns}"
-    
-    INSTRUKSI:
-    Jadikan konteks ini sebagai benang merah cerita. Jika klien cemas soal X, bahas X secara mendalam di bab yang relevan dengan nada menenangkan dan solutif.
+    [FOKUS MASALAH KLIEN]: "${data.concerns}"
+    INSTRUKSI: Pastikan analisis ini menjawab kegelisahan tersebut secara langsung dan solutif.
     `
-    : `[NO SPECIFIC CONCERN]: Klien tidak memberikan konteks spesifik. Lakukan pembacaan menyeluruh.`;
+    : `[NO SPECIFIC CONCERN]: Lakukan analisis menyeluruh.`;
 
   for (const section of sections) {
     let attempts = 0;
@@ -270,34 +246,36 @@ export const generateReport = async (
 
     while (attempts < maxAttempts && !sectionSuccess) {
       try {
-        onStatusUpdate(section.id === 'EXEC_SUM' ? 'Membaca Kisah Bintang...' : `Menulis ${section.title}...`);
+        onStatusUpdate(section.id === 'PREFACE' ? 'Menulis Surat Pembuka...' : `Menganalisis ${section.title}...`);
         
-        const continuityPrompt = section.id === 'EXEC_SUM' 
-          ? "Ini adalah AWAL DOKUMEN."
+        const continuityPrompt = section.id === 'PREFACE' 
+          ? "TUGAS: Tulis surat pembuka yang menjelaskan metodologi Kosmografi Sidereal." 
           : `
-          KONTEKS SEBELUMNYA (Jaga alur cerita):
+          KONTEKS SEBELUMNYA (Agar nyambung):
           "...${lastContext}"
           
-          INSTRUKSI: Lanjutkan narasi langsung masuk ke topik ${section.title}. 
-          Hindari pengulangan sapaan. Fokus pada konten.
+          INSTRUKSI: Lanjutkan pembahasan ke topik: ${section.title}.
           `;
 
         const prompt = `
         ${continuityPrompt}
         
-        [JUDUL BAB SAAT INI]: ${section.title}
+        [TOPIK BAB INI]: ${section.title}
         
         ${concernContext}
         
         ${section.prompt}
         
-        [DATA CHART KLIEN]:
-        ${data.rawText || "Analisis berdasarkan file chart."}
+        [DATA KOSMOGRAFI]:
+        ${data.rawText || "Analisis dari file chart terlampir."}
         
-        REMINDER UTAMA:
-        - GUNAKAN FORMAT NARASI (PARAGRAF).
-        - DILARANG PAKAI BULLET POINTS/LIST.
-        - Tone: Profesional, Hangat, Mengalir.
+        REMINDER KHUSUS:
+        1. GUNAKAN BAHASA INDONESIA YANG LUGAS, JUJUR, DAN TAJAM.
+        2. BONGKAR KELEMAHAN TANPA RAGU.
+        3. LOKASI HARUS SPESIFIK (KOTA/NEGARA).
+        4. WAKTU HARUS SPESIFIK (TANGGAL/BULAN).
+        5. NO MANTRA/MISTIK.
+        6. JANGAN ULANGI INSTRUKSI PROMPT DALAM OUTPUT.
         `;
 
         const processedFiles: any[] = [];
@@ -318,11 +296,13 @@ export const generateReport = async (
           const text = chunk.text;
           if (text) {
             sectionContent += text;
-            let displayContent = (accumulatedReport ? accumulatedReport + "\n\n" : "") + sectionContent;
             
-            if (section.id !== 'EXEC_SUM') {
-               displayContent = displayContent.replace(/(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/gim, "");
-            }
+            let cleanChunk = sectionContent
+                .replace(/\[TOPIK BAB INI\]:.*$/m, "") 
+                .replace(/^TUGAS:.*$/m, "")
+                .trimStart();
+
+            let displayContent = (accumulatedReport ? accumulatedReport + "\n\n" : "") + cleanChunk;
             onStream(displayContent);
           }
 
@@ -337,18 +317,17 @@ export const generateReport = async (
           }
         }
 
-        let cleanText = sectionContent.trim();
-        
-        if (section.id !== 'EXEC_SUM') {
-           cleanText = cleanText
-             .replace(/^(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/gim, "") 
-             .replace(/^(Berikut adalah|Mari kita|Pada bab ini|Tabel di bawah|Selanjutnya kita|Dalam astrologi,).+?(\:|\.|\n)/gim, "") 
+        // CLEANING
+        let cleanText = sectionContent
+             .replace(/^(\[TOPIK BAB INI\]|TUGAS|INSTRUKSI|KONTEKS):.*$/gm, "")
+             .replace(/Ini adalah AWAL LAPORAN/gi, "")
+             .replace(section.id === 'PREFACE' ? /xyz_never_match/ : /^(Halo|Hai|Dear|Kepada|Salam)\s+.*?(,|\.|\n)/gim, "")
              .trim();
-        }
 
         if (accumulatedReport) accumulatedReport += "\n\n<div class='page-break'></div>\n\n"; 
         accumulatedReport += cleanText;
-        lastContext = cleanText.slice(-600).replace(/\n/g, " ");
+        
+        lastContext = cleanText.slice(-400).replace(/\n/g, " ");
         sectionSuccess = true;
 
       } catch (err) {

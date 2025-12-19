@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { UsageStats } from '../types';
@@ -10,16 +10,23 @@ interface ReportViewProps {
   usage: UsageStats | null;
   analysisDate?: string;
   clientName?: string;
+  isLive?: boolean;
 }
 
-const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analysisDate, clientName }) => {
+const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analysisDate, clientName, isLive = false }) => {
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll effect for live view
+  useEffect(() => {
+    if (isLive && bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [content, isLive]);
+
   const handlePrint = () => {
     const originalTitle = document.title;
-    // Set judul halaman agar nama file PDF otomatis menjadi ini
     document.title = `Hasil Analisis Kosmografi (${clientName || 'Klien'})`;
     window.print();
-    
-    // Kembalikan judul asli setelah dialog print muncul (diberi jeda sedikit)
     setTimeout(() => {
       document.title = originalTitle;
     }, 500);
@@ -29,33 +36,34 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
     ? new Date(analysisDate + "-01").toLocaleDateString('id-ID', { year: 'numeric', month: 'long' }).toUpperCase()
     : "DESEMBER 2025";
 
-  // Pre-process content to fix common AI Markdown mistakes before rendering
   const cleanContent = content
-    .replace(/\|\|/g, '|') // Fix double pipes
-    .replace(/\$([a-zA-Z0-9-]+)\$/g, '**$1**') // Remove LaTeX style variables
-    .replace(/<div class='page-break'><\/div>/g, '---PAGE_BREAK---'); // Handle custom page breaks
+    .replace(/\|\|/g, '|')
+    .replace(/\$([a-zA-Z0-9-]+)\$/g, '**$1**')
+    .replace(/<div class='page-break'><\/div>/g, '---PAGE_BREAK---');
 
   return (
-    <div className="w-full min-h-screen pb-20 bg-midnight/40">
+    <div className={`w-full ${isLive ? 'h-full' : 'min-h-screen pb-20'} bg-midnight/40`}>
       
-      {/* Floating Action Bar (Screen Only) */}
-      <div className="no-print fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex gap-4 bg-midnight/90 backdrop-blur-md p-4 rounded-full border border-gold/30 shadow-2xl">
-        <button 
-          onClick={onReset}
-          className="bg-transparent text-gold border border-gold/30 px-8 py-3 rounded-full font-cinzel text-sm hover:bg-gold/10 transition-all uppercase tracking-widest"
-        >
-          New Client
-        </button>
-        <button 
-          onClick={handlePrint}
-          className="bg-gold text-midnight px-10 py-3 rounded-full font-cinzel font-bold text-sm hover:bg-white transition-all shadow-[0_0_20px_rgba(212,175,55,0.4)] uppercase tracking-widest"
-        >
-          Download PDF / Print
-        </button>
-      </div>
+      {/* Floating Action Bar (Only show when NOT live) */}
+      {!isLive && (
+        <div className="no-print fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex gap-4 bg-midnight/90 backdrop-blur-md p-4 rounded-full border border-gold/30 shadow-2xl">
+          <button 
+            onClick={onReset}
+            className="bg-transparent text-gold border border-gold/30 px-8 py-3 rounded-full font-cinzel text-sm hover:bg-gold/10 transition-all uppercase tracking-widest"
+          >
+            New Client
+          </button>
+          <button 
+            onClick={handlePrint}
+            className="bg-gold text-midnight px-10 py-3 rounded-full font-cinzel font-bold text-sm hover:bg-white transition-all shadow-[0_0_20px_rgba(212,175,55,0.4)] uppercase tracking-widest"
+          >
+            Download PDF / Print
+          </button>
+        </div>
+      )}
 
       {/* Report Container */}
-      <div className="report-container max-w-[21.5cm] mx-auto bg-white text-charcoal shadow-2xl min-h-[29.7cm] relative overflow-hidden print:shadow-none print:max-w-none">
+      <div className={`report-container max-w-[21.5cm] mx-auto bg-white text-charcoal shadow-2xl relative overflow-hidden print:shadow-none print:max-w-none ${isLive ? 'min-h-[500px] mb-0' : 'min-h-[29.7cm]'}`}>
         
         {/* Luxury Frame */}
         <div className="absolute inset-4 border-[1px] border-gold/20 pointer-events-none print:inset-8"></div>
@@ -97,18 +105,15 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                     </div>
                   </div>
                 ),
-                // UPDATED H2: Significantly larger for Chapter Headers
                 h2: ({node, ...props}) => (
                   <div className="page-break-before-always break-after-avoid mt-24 mb-10">
                     <h2 className="font-cinzel text-4xl md:text-5xl text-midnight font-black tracking-wider uppercase border-b-4 border-black/10 pb-6 mb-8 leading-tight" {...props} />
                   </div>
                 ),
-                // UPDATED H3: Larger subheaders
                 h3: ({node, ...props}) => (
                   <h3 className="font-cinzel text-2xl font-bold text-midnight mt-12 mb-6 uppercase tracking-wide border-l-4 border-gold pl-4" {...props} />
                 ),
                 p: ({node, ...props}) => {
-                   // Handle the custom page break marker from our pre-processing
                    if (props.children && String(props.children).includes('---PAGE_BREAK---')) {
                      return <div className="page-break-before-always h-0" />;
                    }
@@ -133,7 +138,6 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                     <div className="h-[1px] w-full bg-gold/20"></div>
                   </div>
                 ),
-                // Enhanced Table Styling
                 table: ({node, ...props}) => (
                   <div className="my-12 overflow-hidden border border-gold/20 rounded-sm shadow-sm page-break-inside-avoid bg-white">
                     <table className="w-full border-collapse text-left" {...props} />
@@ -150,6 +154,14 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
             >
               {cleanContent}
             </ReactMarkdown>
+
+            {/* Live Typing Cursor */}
+            {isLive && (
+              <span className="inline-block w-2 h-6 bg-gold ml-1 animate-pulse align-middle"></span>
+            )}
+            
+            {/* Scroll Anchor */}
+            <div ref={bottomRef} />
           </div>
 
           {/* Luxury Footer */}

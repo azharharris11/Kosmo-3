@@ -123,6 +123,7 @@ const App: React.FC = () => {
   };
 
   const currentViewItem = reportState.batchItems.find(item => item.client.id === viewingClientId);
+  const currentProcessingItem = reportState.batchItems.find(item => item.client.id === reportState.currentProcessingId);
 
   return (
     <div className="min-h-screen w-full bg-midnight text-parchment bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]">
@@ -148,58 +149,109 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {(step === Step.GENERATING || step === Step.RESULT_LIST) && (
-            <div className="max-w-5xl mx-auto">
-              
-              {step === Step.GENERATING && (
-                 <div className="text-center mb-12">
-                   <LoadingScreen />
-                   <div className="mt-4 font-cinzel text-gold text-xl animate-pulse">
-                     Memproses: {reportState.batchItems.find(i => i.client.id === reportState.currentProcessingId)?.client.clientName}
-                   </div>
-                   <p className="text-sm text-gray-500 mt-2 font-serif italic italic text-xs">
-                      "Natalie sedang menyeimbangkan pola bintang untuk Anda..."
-                   </p>
-                 </div>
-              )}
+          {/* SPLIT VIEW FOR LIVE GENERATION */}
+          {step === Step.GENERATING && (
+             <div className="flex flex-col lg:flex-row gap-6 max-w-[95%] mx-auto h-[calc(100vh-180px)] animate-fade-in-up">
+                {/* Left Panel: Queue List */}
+                <div className="w-full lg:w-1/4 bg-midnight/80 border border-gold/20 rounded-lg p-4 flex flex-col gap-4 overflow-y-auto custom-scrollbar shadow-xl">
+                   <h3 className="font-cinzel text-gold text-center border-b border-gold/20 pb-2 mb-2 sticky top-0 bg-midnight/90 z-10">
+                     Antrian Analisis ({reportState.batchItems.filter(i => i.status === 'COMPLETED').length}/{reportState.batchItems.length})
+                   </h3>
+                   {reportState.batchItems.map(item => (
+                      <div 
+                        key={item.client.id} 
+                        className={`
+                          p-4 rounded border transition-all duration-300
+                          ${item.status === 'PROCESSING' ? 'bg-gold/10 border-gold shadow-[0_0_10px_rgba(212,175,55,0.3)] scale-105' : ''}
+                          ${item.status === 'PENDING' ? 'bg-black/40 border-gold/10 opacity-60' : ''}
+                          ${item.status === 'COMPLETED' ? 'bg-green-900/20 border-green-500/30' : ''}
+                          ${item.status === 'ERROR' ? 'bg-red-900/20 border-red-500/50' : ''}
+                        `}
+                      >
+                         <div className="flex justify-between items-start mb-2">
+                           <h4 className="font-cinzel text-sm font-bold text-parchment truncate w-3/4">{item.client.clientName}</h4>
+                           {item.status === 'PROCESSING' && <span className="w-2 h-2 bg-gold rounded-full animate-pulse"></span>}
+                           {item.status === 'COMPLETED' && <span className="text-green-400 text-xs">✓</span>}
+                         </div>
+                         <div className="text-[10px] font-serif uppercase tracking-wider text-gold-dim">
+                            {item.status === 'PENDING' && 'Menunggu...'}
+                            {item.status === 'PROCESSING' && 'Sedang Menulis...'}
+                            {item.status === 'COMPLETED' && 'Selesai'}
+                         </div>
+                      </div>
+                   ))}
+                </div>
 
+                {/* Right Panel: Live Preview */}
+                <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden relative shadow-2xl border border-gold/30 flex flex-col">
+                   <div className="bg-midnight p-4 border-b border-gold/30 flex justify-between items-center shadow-lg z-20">
+                      <div className="flex items-center gap-3">
+                        <span className="text-gold text-2xl animate-spin-slow">✦</span>
+                        <div>
+                          <h3 className="font-cinzel text-gold text-lg">
+                            Live Construction
+                          </h3>
+                          <p className="text-xs font-serif text-gray-400 italic">
+                             {currentProcessingItem ? `Analyzing ${currentProcessingItem.client.clientName}...` : "Menyiapkan..."}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-xs font-mono text-gold/60 border border-gold/20 px-2 py-1 rounded">
+                         LIVE PREVIEW MODE
+                      </div>
+                   </div>
+                   
+                   <div className="flex-1 overflow-y-auto bg-gray-50 scroll-smooth relative">
+                       {currentProcessingItem ? (
+                          <div className="transform origin-top scale-[0.85] md:scale-90 lg:scale-100 transition-transform p-4">
+                            <ReportView 
+                               content={currentProcessingItem.resultContent} 
+                               isLive={true} 
+                               clientName={currentProcessingItem.client.clientName}
+                               analysisDate={currentProcessingItem.client.analysisDate}
+                               onReset={() => {}} 
+                               usage={null}
+                            />
+                          </div>
+                       ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-midnight/95">
+                             <LoadingScreen />
+                          </div>
+                       )}
+                   </div>
+                </div>
+             </div>
+          )}
+
+          {/* RESULT GRID LIST (AFTER COMPLETION) */}
+          {step === Step.RESULT_LIST && (
+            <div className="max-w-5xl mx-auto animate-fade-in-up">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {reportState.batchItems.map((item) => (
                   <div 
                     key={item.client.id} 
                     className={`
-                      relative p-6 rounded border transition-all duration-500
-                      ${item.status === 'PROCESSING' ? 'bg-gold/10 border-gold shadow-[0_0_20px_rgba(212,175,55,0.2)] scale-105' : ''}
-                      ${item.status === 'PENDING' ? 'bg-black/40 border-gold/10 opacity-60' : ''}
-                      ${item.status === 'COMPLETED' ? 'bg-midnight border-gold/50 hover:border-gold hover:shadow-lg cursor-pointer' : ''}
-                      ${item.status === 'ERROR' ? 'bg-red-900/20 border-red-500/50' : ''}
+                      relative p-6 rounded border transition-all duration-500 bg-midnight border-gold/50 hover:border-gold hover:shadow-lg cursor-pointer group
+                      ${item.status === 'ERROR' ? 'border-red-500/50' : ''}
                     `}
                     onClick={() => item.status === 'COMPLETED' ? handleViewReport(item.client.id) : null}
                   >
                     <div className="absolute top-4 right-4">
-                      {item.status === 'PENDING' && <span className="text-xs font-cinzel text-gray-500">Menunggu</span>}
-                      {item.status === 'PROCESSING' && <span className="text-xs font-cinzel text-gold animate-pulse">Menulis...</span>}
                       {item.status === 'COMPLETED' && <span className="text-xs font-cinzel text-green-400">✓ Selesai</span>}
                       {item.status === 'ERROR' && <span className="text-xs font-cinzel text-red-400">! Gagal</span>}
                     </div>
 
-                    <h3 className="font-cinzel text-xl text-parchment mb-1 truncate pr-4">{item.client.clientName}</h3>
+                    <h3 className="font-cinzel text-xl text-parchment mb-1 truncate pr-4 group-hover:text-gold transition-colors">{item.client.clientName}</h3>
                     <p className="text-xs font-serif text-gold-dim uppercase tracking-widest mb-4">
                       {item.client.selectedModel === 'gemini-3-pro-preview' ? 'Premium Tier' : item.client.selectedModel === 'gemini-3-flash-preview' ? 'Balanced Tier' : 'Standard Tier'}
                     </p>
 
-                    {item.status === 'PROCESSING' && (
-                       <div className="text-xs font-serif text-gray-400 italic line-clamp-3 h-12">
-                         {item.resultContent.slice(-100)}...
-                       </div>
-                    )}
-
                     {item.status === 'COMPLETED' && (
                        <div className="mt-4 flex justify-between items-end">
-                          <div className="text-xs text-gray-500">
-                             {(item.resultContent.length / 5).toFixed(0)} words
+                          <div className="text-xs text-gray-500 font-serif italic">
+                             Siap dicetak
                           </div>
-                          <button className="text-gold text-sm font-cinzel border-b border-gold hover:text-white">
+                          <button className="text-gold text-sm font-cinzel border-b border-gold group-hover:text-white group-hover:border-white transition-colors">
                              BUKA &rarr;
                           </button>
                        </div>
@@ -208,27 +260,26 @@ const App: React.FC = () => {
                 ))}
               </div>
 
-              {step === Step.RESULT_LIST && (
-                <div className="mt-12 text-center">
-                  <button 
-                    onClick={handleNewSession}
-                    className="bg-transparent border border-gray-600 text-gray-400 px-8 py-3 font-cinzel hover:border-gold hover:text-gold transition-colors"
-                  >
-                    + Input Batch Baru
-                  </button>
-                </div>
-              )}
+              <div className="mt-12 text-center">
+                <button 
+                  onClick={handleNewSession}
+                  className="bg-transparent border border-gray-600 text-gray-400 px-8 py-3 font-cinzel hover:border-gold hover:text-gold transition-colors uppercase tracking-widest text-sm"
+                >
+                  + Input Batch Baru
+                </button>
+              </div>
             </div>
           )}
 
+          {/* SINGLE REPORT VIEW */}
           {step === Step.RESULT_VIEW && currentViewItem && (
              <div className="animate-fade-in-up">
                 <div className="no-print fixed top-6 left-6 z-50">
                    <button 
                      onClick={handleBackToList}
-                     className="bg-midnight/90 text-parchment border border-gold/30 px-6 py-2 rounded font-cinzel hover:bg-gold/20 flex items-center gap-2"
+                     className="bg-midnight/90 text-parchment border border-gold/30 px-6 py-2 rounded-full font-cinzel hover:bg-gold/20 flex items-center gap-2 text-sm shadow-xl backdrop-blur-md"
                    >
-                     &larr; Kembali ke Daftar
+                     &larr; Kembali
                    </button>
                 </div>
                 <ReportView 
