@@ -97,8 +97,14 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                     </div>
                   </div>
                 ),
+                // UPDATED H2: Explicitly BLACK, EXTRA BOLD, and LARGE for Chapter Headers
                 h2: ({node, ...props}) => (
-                  <h2 className="font-cinzel text-xl md:text-2xl text-gold-dim mt-14 mb-6 tracking-wide uppercase border-l-4 border-gold/20 pl-6 py-1 break-after-avoid" {...props} />
+                  <div className="page-break-before-always break-after-avoid mt-20 mb-8">
+                    <h2 className="font-cinzel text-3xl text-midnight font-extrabold tracking-wider uppercase border-b-2 border-black/20 pb-4 mb-6" {...props} />
+                  </div>
+                ),
+                h3: ({node, ...props}) => (
+                  <h3 className="font-cinzel text-xl font-bold text-midnight mt-10 mb-4 uppercase tracking-wide" {...props} />
                 ),
                 p: ({node, ...props}) => {
                    // Handle the custom page break marker from our pre-processing
@@ -168,7 +174,15 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
           .report-container { width: 210mm !important; min-height: 297mm !important; padding: 0 !important; margin: 0 !important; }
           .prose { font-size: 14pt !important; color: black !important; }
           h1 { font-size: 24pt !important; }
-          h2 { font-size: 18pt !important; }
+          h2 { 
+            font-size: 20pt !important; 
+            page-break-before: always !important; 
+            color: black !important; 
+            font-weight: 800 !important;
+            border-bottom: 2px solid #000 !important; 
+            padding-bottom: 10pt !important;
+            margin-bottom: 20pt !important;
+          }
           p { line-height: 1.6 !important; margin-bottom: 16pt !important; }
           .page-break-before-always { page-break-before: always !important; }
         }
