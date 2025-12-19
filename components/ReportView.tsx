@@ -69,16 +69,16 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
              </div>
              
              <div className="inline-block relative px-12 py-6 border-t border-b border-gold/30">
-                <h1 className="font-cinzel text-4xl md:text-5xl font-bold text-midnight tracking-wider mb-2 uppercase leading-tight">
+                <h1 className="font-cinzel text-5xl md:text-6xl font-bold text-midnight tracking-wider mb-2 uppercase leading-tight">
                   Cosmography<br/><span className="text-gold-dim">Strategic Analysis</span>
                 </h1>
              </div>
 
              <div className="mt-8">
-                <p className="font-serif italic text-gold-dim text-2xl tracking-wide">
+                <p className="font-serif italic text-gold-dim text-3xl tracking-wide">
                   Strategic Forecasting by Natalie Lau
                 </p>
-                <p className="font-cinzel text-[11px] tracking-[0.4em] text-gray-400 uppercase mt-4">
+                <p className="font-cinzel text-sm tracking-[0.4em] text-gray-400 uppercase mt-6">
                   {dateDisplay}
                 </p>
              </div>
@@ -90,21 +90,22 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
               remarkPlugins={[remarkGfm]}
               components={{
                 h1: ({node, ...props}) => (
-                  <div className="page-break-before-always first:page-break-before-avoid mb-12 mt-16 text-center">
-                    <h1 className="font-cinzel text-3xl md:text-4xl text-midnight uppercase tracking-wide mb-4 leading-snug" {...props} />
+                  <div className="page-break-before-always first:page-break-before-avoid mb-16 mt-20 text-center">
+                    <h1 className="font-cinzel text-4xl md:text-5xl text-midnight uppercase tracking-wide mb-6 leading-snug font-bold" {...props} />
                     <div className="flex justify-center">
-                       <div className="h-[2px] w-24 bg-gold/50"></div>
+                       <div className="h-[2px] w-32 bg-gold/50"></div>
                     </div>
                   </div>
                 ),
-                // UPDATED H2: Explicitly BLACK, EXTRA BOLD, and LARGE for Chapter Headers
+                // UPDATED H2: Significantly larger for Chapter Headers
                 h2: ({node, ...props}) => (
-                  <div className="page-break-before-always break-after-avoid mt-20 mb-8">
-                    <h2 className="font-cinzel text-3xl text-midnight font-extrabold tracking-wider uppercase border-b-2 border-black/20 pb-4 mb-6" {...props} />
+                  <div className="page-break-before-always break-after-avoid mt-24 mb-10">
+                    <h2 className="font-cinzel text-4xl md:text-5xl text-midnight font-black tracking-wider uppercase border-b-4 border-black/10 pb-6 mb-8 leading-tight" {...props} />
                   </div>
                 ),
+                // UPDATED H3: Larger subheaders
                 h3: ({node, ...props}) => (
-                  <h3 className="font-cinzel text-xl font-bold text-midnight mt-10 mb-4 uppercase tracking-wide" {...props} />
+                  <h3 className="font-cinzel text-2xl font-bold text-midnight mt-12 mb-6 uppercase tracking-wide border-l-4 border-gold pl-4" {...props} />
                 ),
                 p: ({node, ...props}) => {
                    // Handle the custom page break marker from our pre-processing
@@ -113,7 +114,7 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                    }
                    return <p className="mb-8 text-charcoal/90 text-[18px] print:text-[14pt] leading-[1.8] font-light" {...props} />;
                 },
-                strong: ({node, ...props}) => <strong className="text-midnight font-bold border-b border-gold/20" {...props} />,
+                strong: ({node, ...props}) => <strong className="text-midnight font-bold" {...props} />,
                 em: ({node, ...props}) => <em className="text-gold-dim italic font-medium px-1 bg-gold/5 rounded-sm" {...props} />,
                 ul: ({node, ...props}) => <ul className="list-none space-y-4 mb-10 pl-4 text-[18px] print:text-[14pt]" {...props} />,
                 li: ({node, ...props}) => (
@@ -140,7 +141,7 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
                 ),
                 thead: ({node, ...props}) => <thead className="bg-midnight text-gold" {...props} />,
                 th: ({node, ...props}) => (
-                  <th className="p-4 font-cinzel text-[11px] tracking-[0.2em] uppercase border-b border-gold/30" {...props} />
+                  <th className="p-4 font-cinzel text-[12px] tracking-[0.2em] uppercase border-b border-gold/30" {...props} />
                 ),
                 td: ({node, ...props}) => (
                   <td className="p-4 border-b border-gold/10 font-serif text-[16px] print:text-[12pt] text-charcoal/80 align-top" {...props} />
@@ -173,16 +174,17 @@ const ReportView: React.FC<ReportViewProps> = ({ content, onReset, usage, analys
           body { background: white !important; }
           .report-container { width: 210mm !important; min-height: 297mm !important; padding: 0 !important; margin: 0 !important; }
           .prose { font-size: 14pt !important; color: black !important; }
-          h1 { font-size: 24pt !important; }
+          h1 { font-size: 28pt !important; }
           h2 { 
-            font-size: 20pt !important; 
+            font-size: 24pt !important; 
             page-break-before: always !important; 
             color: black !important; 
             font-weight: 800 !important;
-            border-bottom: 2px solid #000 !important; 
-            padding-bottom: 10pt !important;
-            margin-bottom: 20pt !important;
+            border-bottom: 3px solid #000 !important; 
+            padding-bottom: 15pt !important;
+            margin-bottom: 25pt !important;
           }
+          h3 { font-size: 18pt !important; font-weight: bold !important; margin-top: 20pt !important; }
           p { line-height: 1.6 !important; margin-bottom: 16pt !important; }
           .page-break-before-always { page-break-before: always !important; }
         }

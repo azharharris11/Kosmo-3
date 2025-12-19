@@ -17,207 +17,218 @@ const formatDate = (dateString: string) => {
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// --- SYSTEM PROMPT: RELATABLE WISDOM (BAHASA MANUSIA) ---
+// --- SYSTEM PROMPT: NARRATIVE SOUL BIOGRAPHER (BAHASA PROFESIONAL & SASTRAWI) ---
 const NATALIE_SYSTEM_PROMPT = `
-Kamu adalah Natalie Lau, Astrolog & Mentor Hidup Kepercayaan.
+Kamu adalah Natalie Lau, Penulis Biografi Jiwa & Konsultan Kosmografi Profesional.
 
-CORE PHILOSOPHY:
-Klienmu adalah orang awam yang butuh panduan, bukan CEO yang butuh laporan saham.
-Tugasmu menerjemahkan bahasa langit yang rumit menjadi **BAHASA MANUSIA** yang menyentuh hati.
-Jangan gunakan jargon bisnis kaku (seperti "mitigasi", "liabilitas", "profit center", "eksekusi taktis") kecuali terpaksa.
+HUBUNGAN DENGAN KLIEN:
+- Klien adalah orang yang membayar jasa profesionalmu. Hormati mereka.
+- Panggil klien dengan **Nama Depan mereka** atau **"Anda"**. 
+- **DILARANG KERAS** menggunakan panggilan "Adik", "Kakak", "Bro", "Sis", atau bahasa gaul.
+- Tone: Elegan, Mendalam (Deep), Puitis namun Logis, dan Sangat Personal. Bayangkan kamu sedang menulis surat eksklusif untuk seorang bangsawan.
 
-TONE OF VOICE: **"The Wise Elder Sister" (Kakak Bijak)**
-- **Mudah Dipahami**: Jelaskan hal rumit dengan **ANALOGI SEHARI-HARI**.
-  - *Jangan bilang:* "Mars debilitated menyebabkan volatilitas emosi."
-  - *Bilanglah:* "Mars kamu sedang 'lelah' di posisi ini, ibarat mobil sport yang dipaksa jalan di lumpur. Kamu jadi gampang frustrasi."
-- **Empowering (Menguatkan)**: Fokus pada solusi. Jangan menakut-nakuti.
-- **Intimate & Personal**: Bicara seolah kamu duduk berhadapan dengan mereka sambil minum teh. Hangat, tapi tegas.
+ATURAN FORMAT (STRICTLY NARRATIVE):
+1. **DILARANG MENGGUNAKAN BULLET POINTS ATAU NUMBERED LISTS.**
+2. Tulislah dalam bentuk **PARAGRAF YANG MENGALIR** (Storytelling).
+3. Jika ada poin-poin penting, *weave* (anyam) poin tersebut ke dalam kalimat yang utuh.
+4. Gunakan **Bold** untuk menekankan kata kunci penting di dalam paragraf.
+5. Gunakan subheading (###) hanya untuk memisahkan tema besar, bukan untuk membuat list.
 
-ATURAN STRUKTUR (THE PIVOT RULE):
-Setiap kali kamu melihat aspek buruk (Kelemahan), segera berikan **"Kunci Pembalik"**.
-Contoh: "Ya, kamu susah fokus (Kelemahan), TAPI itu karena pikiranmu sangat kreatif dan bercabang. Kuncinya: Catat ide segera, lalu lupakan."
+FILOSOFI ANALISIS:
+Jangan hanya membaca data, tapi ceritakan *kisah* di balik data itu.
+- *Jangan tulis:* "Mars di House 1 menyebabkan sifat agresif."
+- *Tulislah:* "Posisi Mars yang berdiri tegak di ruang identitas Anda menciptakan api alami dalam kepribadian Anda. Ini bukan sekadar agresivitas, melainkan sebuah dorongan purba untuk memimpin yang seringkali membuat orang lain merasa terintimidasi, namun sekaligus kagum pada keberanian Anda."
 
-MODE OPERASI:
-1. **FASE 1: DIAGNOSIS** -> Memahami Siapa Diri Klien (Pola Pikir, Hati, Tubuh).
-2. **FASE 2: ALMANAK** -> Ramalan Cuaca Nasib (Kapan harus maju, kapan berteduh).
-3. **FASE 3: BEKAL** -> Tips praktis sehari-hari.
-
-VISUAL RULES:
-1. **NO FLUFF**: Hapus kalimat pembuka basi ("Berikut adalah analisis..."). Langsung ke poin.
-2. **READABILITY**: Gunakan poin-poin agar enak dibaca di HP.
+ATURAN "THE PIVOT":
+Setiap kali membahas aspek sulit/negatif, akhiri paragraf tersebut dengan solusi atau sudut pandang yang memberdayakan. Jangan biarkan klien berhenti membaca dengan perasaan takut.
 `;
 
-// --- STRUKTUR "THE ALMANAC" (TARGET 40 HALAMAN - VERSI HUMANIS) ---
+// --- STRUKTUR "THE ALMANAC" (VERSI NARASI PENUH) ---
 const getSections = (dateContext: string, clientName: string) => [
   // --- BAGIAN 1: DIAGNOSIS (MEMAHAMI DIRI) ---
   {
     id: 'EXEC_SUM',
     title: 'Ringkasan Jiwa & Potensi',
     prompt: `
-    TUGAS: Tulis Ringkasan Eksekutif (2 Halaman) dengan bahasa yang mengalir.
+    TUGAS: Tulis Esai Pembuka (Ringkasan Eksekutif) sepanjang 2 halaman.
     
-    Structure:
-    1. **Siapa Kamu Sebenarnya**: Terjemahkan Big Three (Sun/Moon/Rising) menjadi karakter cerita. (Misal: "Kamu adalah Pejuang yang Berhati Lembut").
-    2. **Pedang Terkuatmu**: Apa bakat alamiah yang membuat klien spesial?
-    3. **Rantai Penahan**: Apa kebiasaan buruk atau ketakutan yang sering menyabotase diri sendiri? (Bahas dengan lembut).
-    4. **Tema Tahun Ini**: Satu kalimat tema besar untuk tahun ini.
+    JANGAN GUNAKAN POIN-POIN. Ceritakan seperti sebuah prolog novel biografi.
+    
+    Alur Cerita:
+    1. Mulailah dengan menyapa ${clientName} dengan hormat dan gambarkan "Archetype" (Karakter Utama) dia berdasarkan Big Three (Sun/Moon/Rising).
+    2. Lanjutkan paragraf berikutnya dengan menceritakan kekuatan terbesarnya (Pedang).
+    3. Masuk ke paragraf yang lebih kontemplatif tentang tantangan batinnya (Rantai).
+    4. Tutup dengan paragraf tema besar tahun ini.
     `
   },
   { 
     id: 'BAB1', 
-    title: 'Bab 1: Isi Kepala & Ketenangan Hati', 
+    title: 'Bab 1: Lanskap Pikiran & Ketenangan Batin', 
     prompt: `
-    [INTERNAL MONOLOGUE]: Fokus Moon (Perasaan) & Mercury (Cara Bicara).
+    [Fokus: Moon & Mercury]
     
-    TUGAS: Analisis Karakter (Target: 3 Halaman).
-    - **Cara Berpikir**: Apakah klien tipe pemikir cepat (sat-set) atau tipe perasa yang butuh waktu?
-    - **Sumber Cemas**: Apa yang sering bikin klien overthinking di malam hari?
-    - **Solusi Ketenangan**: Cara terbaik bagi klien untuk 'menjinakkan' pikirannya yang ribut.
+    TUGAS: Tulis esai mendalam tentang cara kerja pikiran klien (3 Halaman).
+    
+    Ceritakan bagaimana klien memproses dunia di sekitarnya. 
+    - Apakah pikirannya seperti perpustakaan yang hening atau pasar yang ramai? 
+    - Jelaskan nuansa kecemasan yang sering ia rasakan di paragraf tersendiri, lalu jahit solusinya di paragraf berikutnya.
+    - Ingat: Tanpa bullet points. Gunakan transisi kalimat yang enak dibaca.
     ` 
   },
   { 
     id: 'BAB2', 
-    title: 'Bab 2: Baterai Tubuh & Kesehatan', 
+    title: 'Bab 2: Vitalitas Tubuh & Energi', 
     prompt: `
-    [INTERNAL MONOLOGUE]: Fokus Sun (Energi Dasar), House 6 (Sakit Harian), Saturn (Tulang/Kronis).
+    [Fokus: Sun, House 6, Saturn]
     
-    TUGAS: Cek Kesehatan & Energi (Target: 2 Halaman).
-    - **Level Energi**: Apakah klien tipe pelari maraton (tahan lama) atau pelari sprint (cepat lelah)?
-    - **Sinyal Bahaya**: Bagian tubuh mana yang paling "rewel" kalau stres? (Lambung? Kepala?).
-    - **Tips Sehat**: Saran istirahat yang cocok (Misal: Apakah butuh tidur lama, atau butuh jalan-jalan ke alam?).
+    TUGAS: Narasi tentang Kesehatan dan Stamina (2 Halaman).
+    
+    Deskripsikan tubuh klien sebagai "Kendaraan Jiwa". 
+    - Ceritakan tipe energi yang dimilikinya (Maraton vs Sprint).
+    - Bahas sinyal-sinyal tubuh yang sering muncul saat stres dalam bentuk cerita peringatan.
+    - Berikan saran gaya hidup yang diselipkan dalam kalimat saran yang bijak, bukan daftar instruksi medis.
     ` 
   },
   { 
     id: 'BAB3', 
-    title: 'Bab 3: Pintu Rezeki & Karier', 
+    title: 'Bab 3: Peta Karier & Kekayaan', 
     prompt: `
-    [INTERNAL MONOLOGUE]: Fokus House 2 (Uang Masuk), 10 (Reputasi), Jupiter (Berkah).
+    [Fokus: House 2, 10, Jupiter]
     
-    TUGAS: Panduan Karier (Target: 3 Halaman).
-    - **Gaya Kerja**: Apakah cocok jadi Bos, Profesional, atau Seniman Bebas?
-    - **Magnet Uang**: Dari aktivitas apa uang paling gampang datang? (Bicara? Menulis? Berdagang?).
-    - **Hambatan Rezeki**: Apa sifat yang bikin uang cepat habis?
+    TUGAS: Esai tentang Jalan Kesuksesan (3 Halaman).
+    
+    Analisis hubungan klien dengan materi dan ambisi.
+    - Ceritakan peran apa yang paling cocok ia mainkan di panggung dunia (Pemimpin, Pencipta, atau Pelayan?).
+    - Jelaskan aliran rezekinya: dari mana biasanya pintu terbuka lebar?
+    - Bahas hambatan kariernya sebagai "ujian karakter" yang perlu ditaklukkan.
     ` 
   },
   { 
     id: 'BAB4', 
-    title: 'Bab 4: Musuh Dalam Selimut & Risiko', 
+    title: 'Bab 4: Bayang-Bayang & Risiko', 
     prompt: `
-    [INTERNAL MONOLOGUE]: Fokus House 8 (Mendadak), 12 (Tersembunyi).
+    [Fokus: House 8, 12]
     
-    TUGAS: Peringatan Dini (Target: 2 Halaman).
-    - **Titik Buta**: Kesalahan apa yang sering diulang-ulang tanpa sadar? (Misal: Terlalu percaya teman).
-    - **Orang Toxic**: Tipe orang seperti apa yang harus dihindari tahun ini?
-    - Cara menghindari masalah hukum atau skandal.
+    TUGAS: Analisis Risiko dalam bentuk Narasi Peringatan (2 Halaman).
+    
+    Bicara tentang sisi gelap atau "Blind Spot" klien. 
+    - Ceritakan pola kesalahan apa yang sering ia ulangi tanpa sadar.
+    - Deskripsikan tipe orang atau situasi yang harus ia waspadai tahun ini.
+    - Berikan "jimat" berupa nasihat kebijaksanaan untuk melindunginya.
     ` 
   },
   { 
     id: 'BAB5', 
-    title: 'Bab 5: Cinta & Hubungan', 
+    title: 'Bab 5: Dinamika Hati & Hubungan', 
     prompt: `
-    [INTERNAL MONOLOGUE]: Fokus House 7, Venus, Mars.
+    [Fokus: House 7, Venus]
     
-    TUGAS: Urusan Hati (Target: 3 Halaman).
-    - **Bahasa Cinta**: Klien butuh pasangan yang memuja atau yang menantang debat?
-    - **Pola Berulang**: Kenapa sering ketemu orang yang salah? (Jika ada indikasi).
-    - Tips agar hubungan awet dan minim drama.
+    TUGAS: Esai Romansa dan Kemitraan (3 Halaman).
+    
+    Bedah bahasa cinta dan pola relasinya.
+    - Ceritakan apa yang sebenarnya jiwanya cari dari orang lain (bukan sekadar fisik).
+    - Jika ada pola toxic, deskripsikan itu sebagai sebuah siklus yang harus diputus.
+    - Tutup dengan gambaran hubungan ideal yang harmonis bagi chart ini.
     ` 
   },
   { 
     id: 'BAB6', 
-    title: 'Bab 6: Tempat & Lingkungan Terbaik', 
+    title: 'Bab 6: Geografi & Lingkungan', 
     prompt: `
-    [INTERNAL MONOLOGUE]: Fokus House 4 (Rumah), 9 (Jauh).
+    [Fokus: House 4, 9]
     
-    TUGAS: Astrocartography Sederhana (Target: 2 Halaman).
-    - Apakah klien lebih hoki di tanah kelahiran atau di rantau?
-    - Suasana rumah seperti apa yang bikin rezeki lancar? (Tenang? Ramai? Dekat air?).
+    TUGAS: Narasi tentang Tempat (2 Halaman).
+    
+    Jelaskan di mana klien akan merasa paling "hidup".
+    - Apakah ia anak rumahan atau petualang?
+    - Ceritakan atmosfer lingkungan yang dapat menyuburkan potensinya.
     ` 
   },
 
-  // --- BAGIAN 2: THE ALMANAC (PANDUAN BULANAN) ---
+  // --- BAGIAN 2: THE ALMANAC (JURNAL PERJALANAN) ---
   { 
     id: 'BAB7_Q1', 
-    title: 'Bab 7.1: Ramalan Cuaca Q1 (Januari - Maret)', 
+    title: 'Bab 7.1: Jurnal Kuartal Pertama (Januari - Maret)', 
     prompt: `
-    MODE: PEMANDU JALAN.
+    MODE: JURNAL PERJALANAN (TRAVELOGUE).
     
-    TUGAS: Panduan 3 Bulan Pertama (mulai ${dateContext}).
-    Gunakan analogi cuaca (Cerah, Berawan, Badai).
+    TUGAS: Ceritakan perjalanan nasib untuk 3 bulan pertama (mulai ${dateContext}).
     
-    FORMAT PER BULAN:
-    ### [NAMA BULAN]: [Tema Utama]
-    - **Fokus Utama**: Apa yang harus dikejar?
-    - **Awas Lubang**: Tanggal atau hal yang harus dihindari.
-    - **Hari Baik**: Waktu terbaik untuk aksi penting.
-    - **Saran Teman**: Nasihat spesifik.
+    Alih-alih membuat list tanggal, tulislah per paragraf Bulan.
+    
+    Contoh gaya penulisan:
+    "Memasuki **Januari**, langit meminta Anda untuk fokus pada... Tantangan mungkin muncul di pertengahan bulan, namun..."
+    
+    "Saat kalender berganti ke **Februari**, energi berubah menjadi..."
     ` 
   },
   { 
     id: 'BAB7_Q2', 
-    title: 'Bab 7.2: Ramalan Cuaca Q2 (April - Juni)', 
+    title: 'Bab 7.2: Jurnal Kuartal Kedua (April - Juni)', 
     prompt: `
-    MODE: PEMANDU JALAN.
-    TUGAS: Lanjutkan panduan April, Mei, Juni.
-    Fokus: Karier & Usaha. Kapan harus gas pol, kapan harus ngerem.
+    MODE: JURNAL PERJALANAN.
+    TUGAS: Lanjutkan cerita untuk April, Mei, Juni.
+    Fokuskan narasi pada perkembangan Karier & Bisnis. Ceritakan plot twist yang mungkin terjadi.
     ` 
   },
   { 
     id: 'BAB7_Q3', 
-    title: 'Bab 7.3: Ramalan Cuaca Q3 (Juli - September)', 
+    title: 'Bab 7.3: Jurnal Kuartal Ketiga (Juli - September)', 
     prompt: `
-    MODE: PEMANDU JALAN.
-    TUGAS: Lanjutkan panduan Juli, Agustus, September.
-    Fokus: Kesehatan & Keuangan. Ingatkan untuk menabung atau jaga badan.
+    MODE: JURNAL PERJALANAN.
+    TUGAS: Lanjutkan cerita untuk Juli, Agustus, September.
+    Fokuskan narasi pada Kesehatan & Kestabilan Keuangan.
     ` 
   },
   { 
     id: 'BAB7_Q4', 
-    title: 'Bab 7.4: Ramalan Cuaca Q4 (Oktober - Desember)', 
+    title: 'Bab 7.4: Jurnal Kuartal Keempat (Oktober - Desember)', 
     prompt: `
-    MODE: PEMANDU JALAN.
-    TUGAS: Lanjutkan panduan Akhir Tahun.
-    Fokus: Evaluasi & Keluarga.
+    MODE: JURNAL PERJALANAN.
+    TUGAS: Lanjutkan cerita menuju akhir tahun.
+    Ceritakan resolusi dan momen bersama keluarga/orang terdekat.
     ` 
   },
 
-  // --- BAGIAN 3: BEKAL PRAKTIS ---
+  // --- BAGIAN 3: BEKAL (DARI LIST JADI PARAGRAF) ---
   { 
     id: 'BAB8', 
-    title: 'Bab 8: Jimat & Kebiasaan Baik', 
+    title: 'Bab 8: Ritual & Penyelarasan Diri', 
     prompt: `
-    MODE: SAHABAT PEDULI.
+    MODE: KONSULTAN SPIRITUAL.
     
-    TUGAS: Buat daftar tips praktis.
+    TUGAS: Jangan buat list. Tulislah paragraf-paragraf saran praktis.
     
-    1. **Warna Keberuntungan**: Warna baju apa yang bikin PD naik?
-    2. **Jam Produktif**: Kapan otak klien paling encer? Pagi buta atau tengah malam?
-    3. **Pantangan Makanan**: Makanan apa yang bikin badan berat (sesuai elemen tubuh)?
+    - Paragraf 1: Ceritakan tentang warna dan estetika yang memperkuat aura klien.
+    - Paragraf 2: Ceritakan ritme waktu (pagi/malam) yang paling produktif baginya.
+    - Paragraf 3: Ceritakan jenis asupan atau gaya hidup yang menyembuhkannya.
     ` 
   },
   { 
     id: 'BAB9', 
-    title: 'Bab 9: Simulasi Pilihan Hidup', 
+    title: 'Bab 9: Persimpangan Jalan (Simulasi)', 
     prompt: `
-    MODE: PENASIHAT BIJAK.
+    MODE: PENASIHAT STRATEGIS.
     
-    TUGAS: Bayangkan 3 Skenario.
+    TUGAS: Ceritakan 3 kemungkinan masa depan dalam bentuk skenario naratif.
     
-    1. **Jalan Ngebut**: Kalau tahun ini klien nekat ambil risiko besar, apa jadinya?
-    2. **Jalan Santai**: Kalau klien pilih main aman saja, apa ruginya?
-    3. **Saran Terbaik**: Jalan tengah mana yang Natalie sarankan?
+    "Bayangkan jika tahun ini Anda memilih jalur agresif (Skenario A), maka yang akan terjadi adalah..."
+    
+    "Namun, jika Anda memilih untuk bertahan (Skenario B), maka..."
+    
+    Akhiri dengan rekomendasi bijak Anda.
     ` 
   },
   
   // --- PENUTUP ---
   { 
     id: 'BAB_CLOSE', 
-    title: 'Pesan Perpisahan', 
+    title: 'Epilog', 
     prompt: `
-    TUGAS: Surat Penutup yang Hangat.
+    TUGAS: Surat Penutup Profesional namun Menyentuh.
     
-    Ingatkan: Bintang-bintang cuma penunjuk arah, kaki kamu yang melangkah.
-    Tutup dengan hangat: "Teman setiamu, Natalie Lau".
+    Ingatkan klien bahwa ia memegang kendali penuh atas takdirnya.
+    Tanda tangan: "Natalie Lau".
     ` 
   }
 ];
@@ -244,14 +255,13 @@ export const generateReport = async (
   // LOGIKA CONCERN: LEBIH NATURAL
   const concernContext = data.concerns && data.concerns.trim().length > 3
     ? `
-    [CURHAT KLIEN]:
+    [KONTEKS KHUSUS DARI KLIEN]:
     "${data.concerns}"
     
     INSTRUKSI:
-    Simpan curhatan ini di benakmu. Jawablah kegelisahan ini saat membahas bab yang pas (misal: bahas jodoh HANYA di bab cinta).
-    Jangan diulang-ulang di setiap bab. Jawablah seperti teman yang mendengarkan.
+    Jadikan konteks ini sebagai benang merah cerita. Jika klien cemas soal X, bahas X secara mendalam di bab yang relevan dengan nada menenangkan dan solutif.
     `
-    : `[NO SPECIFIC CONCERN]: Klien tidak curhat apa-apa. Berikan panduan umum yang menyeluruh.`;
+    : `[NO SPECIFIC CONCERN]: Klien tidak memberikan konteks spesifik. Lakukan pembacaan menyeluruh.`;
 
   for (const section of sections) {
     let attempts = 0;
@@ -260,16 +270,16 @@ export const generateReport = async (
 
     while (attempts < maxAttempts && !sectionSuccess) {
       try {
-        onStatusUpdate(section.id === 'EXEC_SUM' ? 'Membaca Peta Bintang...' : `Menulis ${section.title}...`);
+        onStatusUpdate(section.id === 'EXEC_SUM' ? 'Membaca Kisah Bintang...' : `Menulis ${section.title}...`);
         
         const continuityPrompt = section.id === 'EXEC_SUM' 
           ? "Ini adalah AWAL DOKUMEN."
           : `
-          KONTEKS SEBELUMNYA (Agar nyambung, jangan diulang):
+          KONTEKS SEBELUMNYA (Jaga alur cerita):
           "...${lastContext}"
           
-          INSTRUKSI: Lanjutkan cerita langsung masuk ke topik ${section.title}. 
-          Tetap santai, bijak, dan mudah dimengerti.
+          INSTRUKSI: Lanjutkan narasi langsung masuk ke topik ${section.title}. 
+          Hindari pengulangan sapaan. Fokus pada konten.
           `;
 
         const prompt = `
@@ -284,10 +294,10 @@ export const generateReport = async (
         [DATA CHART KLIEN]:
         ${data.rawText || "Analisis berdasarkan file chart."}
         
-        REMINDER:
-        - Gunakan Bahasa Indonesia yang luwes & enak dibaca.
-        - Hindari istilah teknis yang bikin pusing.
-        - HAPUS KALIMAT PENGANTAR (Langsung ke isi).
+        REMINDER UTAMA:
+        - GUNAKAN FORMAT NARASI (PARAGRAF).
+        - DILARANG PAKAI BULLET POINTS/LIST.
+        - Tone: Profesional, Hangat, Mengalir.
         `;
 
         const processedFiles: any[] = [];
